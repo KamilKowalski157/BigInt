@@ -1,4 +1,5 @@
 #include <iostream>
+#include "BigInt.h"
 
 int main(int argc, char ** argv)
 {
