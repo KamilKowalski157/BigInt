@@ -3,6 +3,7 @@
 
 int main(int argc, char ** argv)
 {
-    std::cout<<"Hello World"<<std::endl;
+    BigInt a(25);
+    std::cout<<"magical number: "<<a<<std::endl;
     return 0;
 }
