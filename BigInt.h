@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 #include <string>
+#include <cstring>
 #include <ostream>
+
+//TODO: Optimize reallocation from existing bigint
 
 class BigInt
 {
@@ -13,14 +16,14 @@ class BigInt
     unsigned int n = 0;//length of digits table
 
     void reallocate(unsigned int target_size);
-    bool isNegative() const {return (digits!=nullptr&&(digits[n]&endianMask));}
+    bool isNegative() const {return (digits!=nullptr&&(digits[n-1]&endianMask));}
     void negate();
 
     friend std::ostream & operator<<(std::ostream & stream,const BigInt & b);
 public:
     BigInt(){}
-    template<typename T>
-    BigInt(const T & number);
+    template<typename... Args>
+    BigInt(Args... number);
     BigInt(const std::string & decStr);
     BigInt(uint32_t * _dig,unsigned int _size) : digits(_dig), n(_size){}
     BigInt(BigInt && b);
@@ -50,15 +53,12 @@ public:
 
 std::ostream & operator<<(std::ostream & stream,const BigInt & b);
 
-template<typename T>
-BigInt::BigInt(const T &digit)
+template<typename... Args>
+BigInt::BigInt(Args... digit)
 {
-    reallocate(1);
-    digits[0]  = digit*(1-2*(digit<0));
-    if(digit<0)
-    {
-        negate();
-    }
+    reallocate(sizeof...(digit));
+    uint32_t tab[sizeof...(digit)] = {digit...};
+    memcpy(digits,tab,sizeof(uint32_t)*sizeof...(digit));
 }
 
 #endif /*BIGINT*/

@@ -45,7 +45,7 @@ std::ostream &operator<<(std::ostream &stream, const BigInt &b)
         stream << "-";
         buff.negate();
     }
-    for (int i = 0; i < b.n; i++)
+    for (int i = 0; i < buff.n; i++)
     {
         stream << buff.digits[b.n - 1 - i] << "\t";
     }
@@ -57,7 +57,7 @@ void BigInt::negate()
     buffer = 1; //add 1 to least mattering bit
     for (int i = 0; i < n; i++)
     {
-        buffer += (!digits[i]);
+        buffer += (~digits[i]);
         digits[i] = buffer;
         buffer = buffer >> (sizeof(uint32_t) * 8);
     }
@@ -73,8 +73,13 @@ void BigInt::reallocate(unsigned int target_size)
     {
         new_size = new_size << 1;
     }
+
+    bool sign = isNegative();
     uint32_t *ptr = new uint32_t[new_size];
+
     memcpy(ptr, digits, n * sizeof(uint32_t));
+    memset(ptr + n, sign, sizeof(uint32_t) * (new_size - n));
+
     n = new_size;
     delete[] digits;
     digits = ptr;
@@ -124,11 +129,11 @@ bool BigInt::operator>(const BigInt &b) const
     }
     return false;
 }
-bool BigInt::operator==(const BigInt &b) const
+bool BigInt::operator==(const BigInt &b) const // fix to consider negative numbers
 {
-    for (int i = 0; i < std::min(n, b.n); i++)
+    for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if (digits[i] != b.digits[i])
+        if (digits[i % n] * (i < n) != b.digits[i % b.n] * (i < b.n))
         {
             return false;
         }
@@ -137,9 +142,9 @@ bool BigInt::operator==(const BigInt &b) const
 }
 bool BigInt::operator!=(const BigInt &b) const
 {
-    for (int i = 0; i < std::min(n, b.n); i++)
+    for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if (digits[i] != b.digits[i])
+        if (digits[i % n] * (i < n) != b.digits[i % b.n] * (i < b.n))
         {
             return true;
         }
@@ -149,32 +154,37 @@ bool BigInt::operator!=(const BigInt &b) const
 BigInt BigInt::operator+(const BigInt &b) const
 {
     buffer = 0;
-    BigInt result;
-    result.reallocate(std::max(n + (digits[n - 1] != 0), b.n + (b.digits[b.n - 1] != 0)));
-
-    unsigned int i;
-    for (i = 0; i < std::max(n, b.n); i++)
+    unsigned int max_size = std::max(n + (digits[n - 1] != 0 & (!isNegative())) | (digits[n - 1] != (~0) & isNegative()),
+                                     b.n + (b.digits[n - 1] != 0 & (!b.isNegative())) | (b.digits[n - 1] != (~0) & b.isNegative()));
+    BigInt r1 = *this;
+    BigInt r2 = b;
+    r1.reallocate(max_size);
+    r2.reallocate(max_size);
+    for(int i = 0;i<r1.n;i++)
     {
-        buffer += digits[i];
-        buffer += b.digits[i];
-        result.digits[i] = buffer;
-        buffer = (buffer << (sizeof(uint32_t) * 8));
+        buffer+=r1.digits[i];
+        buffer+=r2.digits[i];
+        r1.digits[i] = buffer;
+        buffer = (buffer<<(8*sizeof(uint32_t)));
     }
-    if (n < b.n)
+    return r1;
+}
+BigInt BigInt::operator-(const BigInt &b) const
+{
+    buffer = 0;
+    unsigned int max_size = std::max(n + (digits[n - 1] != 0 & (!isNegative())) | (digits[n - 1] != (~0) & isNegative()),
+                                     b.n + (b.digits[n - 1] != 0 & (!b.isNegative())) | (b.digits[n - 1] != (~0) & b.isNegative()));
+    BigInt r1 = *this;
+    BigInt r2 = b;
+    r2.negate();
+    r1.reallocate(max_size);
+    r2.reallocate(max_size);
+    for(int i = 0;i<r1.n;i++)
     {
-        for (; i < b.n; i++)
-        {
-            buffer += b.digits[i];
-            result.digits[i] = buffer;
-            buffer = (buffer << (sizeof(uint32_t) * 8));
-        }
-        return result;
+        buffer+=r1.digits[i];
+        buffer+=r2.digits[i];
+        r1.digits[i] = buffer;
+        buffer = (buffer<<(8*sizeof(uint32_t)));
     }
-    for (; i < n; i++)
-    {
-        buffer += digits[i];
-        result.digits[i] = buffer;
-        buffer = (buffer << (sizeof(uint32_t) * 8));
-    }
-    return result;
+    return r1;
 }

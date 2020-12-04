@@ -12,24 +12,59 @@ double Tester::stopTimer()
     auto timer2 = std::chrono::high_resolution_clock::now();
     return std::chrono::duration_cast<std::chrono::nanoseconds>(timer2 - timer1).count();
 }
-void Tester::testAddition(unsigned int n)
+unsigned int Tester::testAddition(unsigned int n)
 {
+    unsigned int failures = 0;
     std::default_random_engine engine;
     auto dist = std::uniform_int_distribution(0,999999);
+    startTimer();
     for (int i = 0; i < n; i++)
     {
-        auto x = dist(engine);
-        auto y = dist(engine);
-        BigInt a(x);
-        BigInt b(y);
-        BigInt c(a+b);
+        auto x = dist(engine)-500000;
+        auto y = dist(engine)-500000;
+        BigInt a((uint32_t)x);
+        BigInt b((uint32_t)y);
+        BigInt c((a+b));
         if (a + b != c)
         {
-            std::cout<<"Invalid result. For a = "<<x<<" and b = "<<y<<" gives "<<c<<" instead of "<<(x+y)<<std::endl;
+            failures++;
+            std::cout<<"Invalid result. For a =\t"<<x<<"\tand b =\t"<<y<<"\tgives\t"<<c<<" instead of\t"<<(x+y)<<std::endl;
         }
         else
         {
-            std::cout<<"Passed test for: a = "<<x<<" and b = "<<y<<" with result = "<<c<<std::endl;
+            std::cout<<"Passed test for: a =\t"<<x<<"\tand b =\t"<<y<<"\twith result =\t"<<c<<std::endl;
         }
     }
+    double time = stopTimer();
+    std::cout<<time<<" milliseconds elapsed. Executed "<<n<<" trials, which gives average of "<<time/n<< " milliseconds per trial"<<std::endl;
+    std::cout<<failures<<" / "<<n<<" trials failed"<<std::endl;
+    return failures;
+}
+unsigned int Tester::testSubtraction(unsigned int n)
+{
+    unsigned int failures = 0;
+    std::default_random_engine engine;
+    auto dist = std::uniform_int_distribution(0,999999);
+    startTimer();
+    for (int i = 0; i < n; i++)
+    {
+        auto x = dist(engine)-500000;
+        auto y = dist(engine)-500000;
+        BigInt a((uint32_t)x+y);
+        BigInt b((uint32_t)y);
+        BigInt c((uint32_t)x);
+        if ((a-b) != c)
+        {
+            failures++;
+            std::cout<<"Invalid result. For a =\t"<<x+y<<"\tand b =\t"<<y<<"\tgives\t"<<c<<" instead of\t"<<(x)<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Passed test for: a =\t"<<x+y<<"\tand b =\t"<<y<<"\twith result =\t"<<c<<std::endl;
+        }
+    }
+    double time = stopTimer();
+    std::cout<<time<<" milliseconds elapsed. Executed "<<n<<" trials, which gives average of "<<time/n<< " milliseconds per trial"<<std::endl;
+    std::cout<<failures<<" / "<<n<<" trials failed"<<std::endl;
+    return failures;
 }
