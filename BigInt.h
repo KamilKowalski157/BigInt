@@ -17,6 +17,7 @@ class BigInt
 
     void reallocate(unsigned int target_size);
     bool isNegative() const {return (digits!=nullptr&&(digits[n-1]&endianMask));}
+    unsigned int getActualSize();// returns size without leading 0s (or 1s in case of negative complementation)
     void negate();
 
     friend std::ostream & operator<<(std::ostream & stream,const BigInt & b);

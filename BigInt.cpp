@@ -1,7 +1,21 @@
 #include "BigInt.h"
 #include <cstring>
-
+#include <iostream>
 uint32_t BigInt::endianMask = (uint32_t)1 << (sizeof(uint32_t) * 8 - 1);
+
+template<typename T>
+void var2Bin(const T & var)
+{
+    char * ptr = (char*)&var;
+    for(int i = 0;i<sizeof(T);i++)
+    {
+        for(int j = 0;j<8;j++)
+        {
+            std::cout<<(int)(((ptr[sizeof(T)-1-i]<<j)&128)/128)<<" ";
+        }
+    }
+    std::cout<<std::endl;
+}
 
 BigInt::BigInt(BigInt &&b)
 {
@@ -78,7 +92,7 @@ void BigInt::reallocate(unsigned int target_size)
     uint32_t *ptr = new uint32_t[new_size];
 
     memcpy(ptr, digits, n * sizeof(uint32_t));
-    memset(ptr + n, sign, sizeof(uint32_t) * (new_size - n));
+    memset(ptr + n, sign*255, sizeof(uint32_t) * (new_size - n));
 
     n = new_size;
     delete[] digits;
@@ -131,9 +145,11 @@ bool BigInt::operator>(const BigInt &b) const
 }
 bool BigInt::operator==(const BigInt &b) const // fix to consider negative numbers
 {
+    bool mySign = isNegative();
+    bool bSign = b.isNegative();
     for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if (digits[i % n] * (i < n) != b.digits[i % b.n] * (i < b.n))
+        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~0) * bSign)))
         {
             return false;
         }
@@ -142,9 +158,12 @@ bool BigInt::operator==(const BigInt &b) const // fix to consider negative numbe
 }
 bool BigInt::operator!=(const BigInt &b) const
 {
+    bool mySign = isNegative();
+    bool bSign = b.isNegative();
+    
     for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if (digits[i % n] * (i < n) != b.digits[i % b.n] * (i < b.n))
+        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~0) * bSign)))
         {
             return true;
         }
@@ -160,12 +179,12 @@ BigInt BigInt::operator+(const BigInt &b) const
     BigInt r2 = b;
     r1.reallocate(max_size);
     r2.reallocate(max_size);
-    for(int i = 0;i<r1.n;i++)
+    for (int i = 0; i < r1.n; i++)
     {
-        buffer+=r1.digits[i];
-        buffer+=r2.digits[i];
+        buffer += r1.digits[i];
+        buffer += r2.digits[i];
         r1.digits[i] = buffer;
-        buffer = (buffer<<(8*sizeof(uint32_t)));
+        buffer = (buffer >> (8 * sizeof(uint32_t)));
     }
     return r1;
 }
@@ -179,12 +198,13 @@ BigInt BigInt::operator-(const BigInt &b) const
     r2.negate();
     r1.reallocate(max_size);
     r2.reallocate(max_size);
-    for(int i = 0;i<r1.n;i++)
+
+    for (int i = 0; i < r1.n; i++)
     {
-        buffer+=r1.digits[i];
-        buffer+=r2.digits[i];
+        buffer += r1.digits[i];
+        buffer += r2.digits[i];
         r1.digits[i] = buffer;
-        buffer = (buffer<<(8*sizeof(uint32_t)));
+        buffer = (buffer >> (8 * sizeof(uint32_t)));
     }
     return r1;
 }
