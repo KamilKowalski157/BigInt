@@ -8,6 +8,8 @@
 
 //TODO: Optimize reallocation from existing bigint
 
+class Tester;
+
 class BigInt
 {
     static uint32_t endianMask;
@@ -21,6 +23,7 @@ class BigInt
     void negate();
 
     friend std::ostream & operator<<(std::ostream & stream,const BigInt & b);
+    friend Tester;
 public:
     BigInt(){}
     template<typename... Args>

@@ -68,3 +68,39 @@ unsigned int Tester::testSubtraction(unsigned int n)
     std::cout<<failures<<" / "<<n<<" trials failed"<<std::endl;
     return failures;
 }
+unsigned int Tester::testAddSubtr(unsigned int n)
+{
+    unsigned int failures = 0;
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine engine(seed);
+    auto dist = std::uniform_int_distribution(0,999999);
+
+    std::cout<<"generated on seed: "<<seed<<std::endl;
+
+    startTimer();
+    for (int i = 0; i < n; i++)
+    {
+        BigInt a[2];
+        for(int j = 0;j<10;j++)
+        {
+            for(int k = 0;k<2;k++)
+            {
+                a[k].reallocate(j+1);
+                a[k].digits[j] = dist(engine);
+            }
+        }
+        if((a[0]-a[1])+a[1] != a[0])
+        {
+            std::cout<<"Trial failed for:\t"<<a[0]<<" and\t"<<a[1]<<"with sum equal:\t"<<(a[0]+a[1])<<" and difference equal:\t"<<((a[0]-a[1])+a[1])<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Trial passed for:\t"<<a[0]<<" and\t"<<a[1]<<" with sum of:\t"<<(a[0]+a[1])<<std::endl;
+        }
+        
+    }
+    double time = stopTimer();
+    std::cout<<time<<" milliseconds elapsed. Executed "<<n<<" trials, which gives average of "<<time/n<< " milliseconds per trial"<<std::endl;
+    std::cout<<failures<<" / "<<n<<" trials failed"<<std::endl;
+    return failures;
+}

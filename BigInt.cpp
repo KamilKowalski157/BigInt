@@ -3,18 +3,20 @@
 #include <iostream>
 uint32_t BigInt::endianMask = (uint32_t)1 << (sizeof(uint32_t) * 8 - 1);
 
-template<typename T>
-void var2Bin(const T & var)
+template <typename T>
+std::string var2Bin(const T &var)
 {
-    char * ptr = (char*)&var;
-    for(int i = 0;i<sizeof(T);i++)
+    std::string result;
+    char *ptr = (char *)&var;
+    for (int i = 0; i < sizeof(T); i++)
     {
-        for(int j = 0;j<8;j++)
+        for (int j = 0; j < 8; j++)
         {
-            std::cout<<(int)(((ptr[sizeof(T)-1-i]<<j)&128)/128)<<" ";
+            result += ((((ptr[sizeof(T) - 1 - i] << j) & 128) / 128) + '0');
+            result += " ";
         }
     }
-    std::cout<<std::endl;
+    return result;
 }
 
 BigInt::BigInt(BigInt &&b)
@@ -92,11 +94,22 @@ void BigInt::reallocate(unsigned int target_size)
     uint32_t *ptr = new uint32_t[new_size];
 
     memcpy(ptr, digits, n * sizeof(uint32_t));
-    memset(ptr + n, sign*255, sizeof(uint32_t) * (new_size - n));
+    memset(ptr + n, sign * 255, sizeof(uint32_t) * (new_size - n));
 
     n = new_size;
     delete[] digits;
     digits = ptr;
+}
+
+std::string BigInt::toBin() const
+{
+    std::string result;
+    for (int i = 0; i < n; i++)
+    {
+        result += var2Bin(digits[n-1-i]);
+        result += "\t";
+    }
+    return result;
 }
 
 // Comparision operators
@@ -160,7 +173,7 @@ bool BigInt::operator!=(const BigInt &b) const
 {
     bool mySign = isNegative();
     bool bSign = b.isNegative();
-    
+
     for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
         if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~0) * bSign)))
@@ -170,6 +183,9 @@ bool BigInt::operator!=(const BigInt &b) const
     }
     return false;
 }
+
+//Arithmetic operators
+
 BigInt BigInt::operator+(const BigInt &b) const
 {
     buffer = 0;
