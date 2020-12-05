@@ -106,10 +106,21 @@ std::string BigInt::toBin() const
     std::string result;
     for (int i = 0; i < n; i++)
     {
-        result += var2Bin(digits[n-1-i]);
+        result += var2Bin(digits[n - 1 - i]);
         result += "\t";
     }
     return result;
+}
+
+bool BigInt::abs()
+{
+    bool sign = isNegative();
+    if (!sign)
+    {
+        return sign;
+    }
+    negate();
+    return sign;
 }
 
 // Comparision operators
@@ -124,9 +135,9 @@ bool BigInt::operator<(const BigInt &b) const
     }
     if (n != b.n)
     {
-        return (n < b.n);
+        return (n < b.n) * (!mySign);
     }
-    for (int i = 0; i < n; i++)
+    for (int i = n - 1; i >= 0; --i)
     {
         if (digits[i] < b.digits[i])
         {
@@ -145,9 +156,9 @@ bool BigInt::operator>(const BigInt &b) const
     }
     if (n != b.n)
     {
-        return (n > b.n);
+        return (n > b.n) * (!mySign);
     }
-    for (int i = 0; i < n; i++)
+    for (int i = n - 1; i >= 0; --i)
     {
         if (digits[i] > b.digits[i])
         {
@@ -162,7 +173,7 @@ bool BigInt::operator==(const BigInt &b) const // fix to consider negative numbe
     bool bSign = b.isNegative();
     for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~0) * bSign)))
+        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~(uint32_t)0) * bSign))) // Skips over trailing zeros (also in case of negative numbers)
         {
             return false;
         }
@@ -176,7 +187,7 @@ bool BigInt::operator!=(const BigInt &b) const
 
     for (unsigned int i = 0; i < std::max(n, b.n); i++)
     {
-        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~0) * bSign)))
+        if ((digits[i % n] * (i < n) + (!(i < n)) * ((~0) * mySign)) != (b.digits[i % n] * (i < b.n) + (!(i < b.n)) * ((~(uint32_t)0) * bSign))) // Skips over trailing zeros (also in case of negative numbers)
         {
             return true;
         }
@@ -204,6 +215,7 @@ BigInt BigInt::operator+(const BigInt &b) const
     }
     return r1;
 }
+
 BigInt BigInt::operator-(const BigInt &b) const
 {
     buffer = 0;
@@ -223,4 +235,57 @@ BigInt BigInt::operator-(const BigInt &b) const
         buffer = (buffer >> (8 * sizeof(uint32_t)));
     }
     return r1;
+}
+
+BigInt BigInt::operator<<(int shift) const // Optimization is very much possible
+{
+    BigInt result(*this);
+    buffer = 0;
+    shift = -shift;
+
+    int smallOffset = ((shift) % (sizeof(uint32_t) * 8));
+    int bigOffset = shift - smallOffset;
+    int biggerOffset = shift + (sizeof(uint32_t) * 8) - smallOffset;
+    bool sign = isNegative();
+
+    for (int i = 0; i < n; i++)
+    {
+        buffer = digits[(i + biggerOffset) % n] * ((i + biggerOffset) < n) * ((i + biggerOffset) >= 0) + ((i + biggerOffset) >= n) * (sign * (~0));
+        buffer = (buffer << (sizeof(uint32_t) * 8));
+        buffer += digits[(i + bigOffset) % n] * ((i + bigOffset) < n) * ((i + bigOffset) >= 0) + ((i + bigOffset) >= n) * (sign * (~0));
+
+        result.digits[i] = (buffer >> (smallOffset));
+    }
+    return result;
+}
+BigInt BigInt::operator>>(int shift) const
+{
+    BigInt result(*this);
+    buffer = 0;
+
+    int smallOffset = ((shift) % (sizeof(uint32_t) * 8));
+    int bigOffset = shift - smallOffset;
+    int biggerOffset = shift + (sizeof(uint32_t) * 8) - smallOffset;
+    bool sign = isNegative();
+
+    for (int i = 0; i < n; i++)
+    {
+        buffer = digits[(i + biggerOffset) % n] * ((i + biggerOffset) < n) * ((i + biggerOffset) >= 0) + ((i + biggerOffset) >= n) * (sign * (~0));
+        buffer = (buffer << (sizeof(uint32_t) * 8));
+        buffer += digits[(i + bigOffset) % n] * ((i + bigOffset) < n) * ((i + bigOffset) >= 0) + ((i + bigOffset) >= n) * (sign * (~0));
+        
+        result.digits[i] = (buffer >> (smallOffset));
+    }
+    return result;
+}
+
+BigInt BigInt::operator/(const BigInt &b) const
+{
+    BigInt result;
+    result.reallocate(std::max((int)n - (int)b.n + 1, 1));
+
+    return result;
+}
+BigInt BigInt::operator*(const BigInt &b) const
+{
 }
