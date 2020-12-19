@@ -5,6 +5,6 @@
 int main(int argc, char ** argv)
 {
     Tester tester;
-    tester.testShift(100000000);
+    tester.testAddition(1000000);
     return 0;
 }

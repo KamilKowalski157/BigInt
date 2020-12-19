@@ -19,19 +19,21 @@ class BigInt
     uint32_t *digits = nullptr;
     mutable uint64_t buffer;
     unsigned int n = 0;//length of digits table
+    unsigned int fullDigits = 0;
 
     void reallocate(unsigned int target_size); // should return pointer and size, and be const for maximum efficiency (minimizing new calls)
     bool isNegative() const {return (digits!=nullptr&&(digits[n-1]&endianMask));}
-    unsigned int getActualSize();// returns size without leading 0s (or 1s in case of negative complementation)
+    unsigned int getActualSize() const;// returns size without leading 0s (or 1s in case of negative complementation)
     void negate();
     bool abs();
-    void shiftLeft();
-    void shiftRight();
+    void shiftLeft(); //Fast implementation for single shift
+    void shiftRight(); // Fast implementation for single shift;
+    void karatsuba(BigInt & a,BigInt & b);
 
     friend std::ostream & operator<<(std::ostream & stream,const BigInt & b);
     friend Tester;
 public:
-    BigInt(){}
+    BigInt(){reallocate(1);digits[0] = 0;}
     template<typename... Args>
     BigInt(Args... number);
     BigInt(const std::string & decStr);
@@ -43,6 +45,12 @@ public:
     BigInt operator-(const BigInt & b) const;
     BigInt operator*(const BigInt & b) const;
     BigInt operator/(const BigInt & b) const;
+
+    BigInt &operator+=(const BigInt & b);
+    BigInt &operator-=(const BigInt & b);
+    BigInt &operator*=(const BigInt & b);
+    BigInt &operator/=(const BigInt & b);
+
 
     BigInt operator<<(int shift) const;
     BigInt operator>>(int shift) const;
