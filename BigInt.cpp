@@ -125,17 +125,18 @@ bool BigInt::abs()
 
 unsigned int BigInt::getActualSize() const
 {
+    bool sign = isNegative();
     for (int i = n - 1; i >= 0; --i)
     {
-        if (digits[i] != 0)
+        if (digits[i] != (~0) * sign)
         {
             int j;
             auto mask = endianMask;
             for (j = sizeof(uint32_t) * 8; j > 0; --j)
             {
-                if (mask & digits[i])
+                if ((mask & digits[i])^sign)
                 {
-                    return i + j;
+                    return i*sizeof(uint32_t)*8 + j;
                 }
                 mask = (mask >> 1);
             }
@@ -144,7 +145,7 @@ unsigned int BigInt::getActualSize() const
     return -1;
 }
 
-// Comparision operators
+// Comparision operators are invalid
 
 bool BigInt::operator<(const BigInt &b) const
 {
@@ -252,16 +253,12 @@ void BigInt::shiftRight()
 BigInt BigInt::operator+(const BigInt &b) const
 {
     buffer = 0;
-    unsigned int max_size = std::max(n + (digits[n - 1] != 0 & (!isNegative())) | (digits[n - 1] != (~0) & isNegative()),
-                                     b.n + (b.digits[n - 1] != 0 & (!b.isNegative())) | (b.digits[n - 1] != (~0) & b.isNegative()));
-    BigInt r1 = *this;
-    BigInt r2 = b;
-    r1.reallocate(max_size);
-    r2.reallocate(max_size);
-    for (int i = 0; i < r1.n; i++)
+    BigInt r1;
+    r1.reallocate(std::max(n, b.n));
+    for (int i = 0; i < r1.n; i++) // Overflows as intended...
     {
-        buffer += r1.digits[i];
-        buffer += r2.digits[i];
+        buffer += digits[i % n] * (i < n);
+        buffer += b.digits[i % b.n] * (i < b.n);
         r1.digits[i] = buffer;
         buffer = (buffer >> (8 * sizeof(uint32_t)));
     }
@@ -271,18 +268,14 @@ BigInt BigInt::operator+(const BigInt &b) const
 BigInt BigInt::operator-(const BigInt &b) const
 {
     buffer = 0;
-    unsigned int max_size = std::max(n + (digits[n - 1] != 0 & (!isNegative())) | (digits[n - 1] != (~0) & isNegative()),
-                                     b.n + (b.digits[n - 1] != 0 & (!b.isNegative())) | (b.digits[n - 1] != (~0) & b.isNegative()));
-    BigInt r1 = *this;
-    BigInt r2 = b;
-    r2.negate();
-    r1.reallocate(max_size);
-    r2.reallocate(max_size);
+    BigInt r1 = b;
+    r1.negate();
+    r1.reallocate(std::max(n, b.n));
 
     for (int i = 0; i < r1.n; i++)
     {
         buffer += r1.digits[i];
-        buffer += r2.digits[i];
+        buffer += digits[i % n] * (i < n);
         r1.digits[i] = buffer;
         buffer = (buffer >> (8 * sizeof(uint32_t)));
     }
@@ -291,46 +284,42 @@ BigInt BigInt::operator-(const BigInt &b) const
 
 BigInt BigInt::operator<<(int shift) const // Optimization is very much possible
 {
-    BigInt result;
-    buffer = 0;
-    shift = -shift;
-
-    int smallOffset = ((shift) % (sizeof(uint32_t) * 8));
-    int bigOffset = (shift - smallOffset) / (sizeof(uint32_t) * 8);
-    int biggerOffset = (shift + (sizeof(uint32_t) * 8) - smallOffset) / (sizeof(uint32_t) * 8);
-
-    result.reallocate(n - (bigOffset / (sizeof(uint32_t) * 8)));
-    bool sign = isNegative();
-
-    for (int i = 0; i < n; i++)
+    if (shift == 0)
     {
-        buffer = digits[(i + biggerOffset) % n] * ((i + biggerOffset) < n) * ((i + biggerOffset) >= 0) + ((i + biggerOffset) >= n) * (sign * (~0));
-        buffer = (buffer << (sizeof(uint32_t) * 8));
-        buffer += digits[(i + bigOffset) % n] * ((i + bigOffset) < n) * ((i + bigOffset) >= 0) + ((i + bigOffset) >= n) * (sign * (~0));
-
-        result.digits[i] = (buffer >> (smallOffset));
+        return *this;
+    }
+    shift = -shift;
+    BigInt result;
+    result.reallocate(n);
+    int majorOffset = (shift * (1 - (shift < 0) * 2) / (sizeof(uint32_t) * 8)) * (1 - (shift < 0) * 2) - (shift < 0);
+    int minorOffset = shift - majorOffset * sizeof(uint32_t) * 8;
+    uint32_t s1, s2;
+    bool sign = isNegative();
+    for (int i = 0, j = majorOffset; i < result.n; i++, j++)
+    {
+        s1 = (digits[(j) % n]) * (j < n) * ((j + 1) > 0) + (~0) * sign * (n <= j);
+        s2 = (digits[(j + 1) % n]) * ((j + 1) < n) * ((j + 2) > 0) + (~0) * sign * ((j + 1) >= n);
+        result.digits[i] = ((s2 << (sizeof(uint32_t) * 8 - minorOffset)) + (s1 >> minorOffset));
     }
     return result;
 }
 BigInt BigInt::operator>>(int shift) const
 {
-    BigInt result;
-    buffer = 0;
-
-    int smallOffset = ((shift) % (sizeof(uint32_t) * 8));
-    int bigOffset = (shift - smallOffset) / (sizeof(uint32_t) * 8);
-    int biggerOffset = (shift + (sizeof(uint32_t) * 8) - smallOffset) / (sizeof(uint32_t) * 8);
-
-    result.reallocate(n - (bigOffset / (sizeof(uint32_t) * 8)));
-    bool sign = isNegative();
-
-    for (int i = 0; i < n; i++)
+    if (shift == 0)
     {
-        buffer = digits[(i + biggerOffset) % n] * ((i + biggerOffset) < n) * ((i + biggerOffset) >= 0) + ((i + biggerOffset) >= n) * (sign * (~0));
-        buffer = (buffer << (sizeof(uint32_t) * 8));
-        buffer += digits[(i + bigOffset) % n] * ((i + bigOffset) < n) * ((i + bigOffset) >= 0) + ((i + bigOffset) >= n) * (sign * (~0));
-
-        result.digits[i] = (buffer >> (smallOffset));
+        return *this;
+    }
+    BigInt result;
+    result.reallocate(n);
+    int majorOffset = (shift * (1 - (shift < 0) * 2) / (sizeof(uint32_t) * 8)) * (1 - (shift < 0) * 2) - (shift < 0);
+    int minorOffset = shift - majorOffset * sizeof(uint32_t) * 8;
+    uint32_t s1, s2;
+    bool sign = isNegative();
+    for (int i = 0, j = majorOffset; i < result.n; i++, j++)
+    {
+        s1 = (digits[(j) % n]) * (j < n) * ((j + 1) > 0) + (~0) * sign * (n <= j);
+        s2 = (digits[(j + 1) % n]) * ((j + 1) < n) * ((j + 2) > 0) + (~0) * sign * ((j + 1) >= n);
+        result.digits[i] = ((s2 << (sizeof(uint32_t) * 8 - minorOffset)) + (s1 >> minorOffset));
     }
     return result;
 }
@@ -348,12 +337,6 @@ BigInt &BigInt::operator+=(const BigInt &b)
         buffer += ((b.digits[i] * (i < b.n)) + ((!(i < b.n)) && (b.isNegative() * (~0)))); //prevents overflow
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    if (buffer == !mySign)
-    {
-        reallocate(n + 1);
-        digits[n - 1] += buffer;
-        digits[n - 1] += (~0) * b.isNegative();
     }
     return *this;
 }
@@ -374,32 +357,36 @@ BigInt &BigInt::operator-=(const BigInt &b1)
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    if (buffer == !mySign)
-    {
-        reallocate(n + 1);
-        digits[n - 1] += buffer;
-        digits[n - 1] += (~0) * b.isNegative();
-    }
     return *this;
 }
 
 BigInt BigInt::operator/(const BigInt &b) const
 {
-    if (b > *this)
+    BigInt divisor, result, buffer;
+    divisor.reallocate(std::max(b.n, n));
+    int s2 = getActualSize();
+    int s1 = b.getActualSize();
+    int shift = s2 - s1;
+    if (shift < 0)
     {
-        return BigInt(0);
+        return (uint32_t)0;
     }
-    BigInt result;
-    BigInt copy(*this);
-    BigInt c = b;
-    int diff = getActualSize()-b.getActualSize();
-    c = (c<<diff);
-    while(copy>0)
+    buffer = *this;
+    bool sign = isNegative() ^ buffer.abs();
+    divisor = (b << (shift));
+    divisor.abs();
+    while (s1 <= s2)
     {
-
+        result.shiftLeft();
+        if ((buffer.digits[s2 / (sizeof(uint32_t) * 8)] >> ((s2 % (sizeof(uint32_t) * 8))-1)) & 1)
+        {
+            buffer -= divisor;
+            result.digits[0]+=1;
+        }
+        divisor.shiftRight();
+        s2--;
     }
-
-    return (result<<diff);
+    return result;
 }
 void BigInt::karatsuba(BigInt &a, BigInt &b)
 {

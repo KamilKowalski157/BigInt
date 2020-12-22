@@ -5,6 +5,6 @@
 int main(int argc, char ** argv)
 {
     Tester tester;
-    tester.testAddition(1000000);
+    tester.testDivision(9999);
     return 0;
 }
