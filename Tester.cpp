@@ -52,7 +52,7 @@ unsigned int Tester::testSubtraction(unsigned int n)
         auto x = dist(engine) - 5000000;
         auto y = dist(engine) - 5000000;
         BigInt a((uint32_t)x + y);
-        a-= y;
+        a -= y;
         BigInt c((uint32_t)x);
         if (a != c)
         {
@@ -81,31 +81,35 @@ unsigned int Tester::testAddSubtr(unsigned int n)
     startTimer();
     for (int i = 0; i < n; i++)
     {
-        BigInt a[2];
+        BigInt a[3];
         a[0].reallocate(10);
         a[1].reallocate(10);
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 8; j++)
         {
             for (int k = 0; k < 2; k++)
             {
                 a[k].digits[j] = dist(engine);
             }
         }
-        if ((a[0] - a[1]) + a[1] != a[0])
+        a[2] = a[0];
+        if(a[2]!=a[0]){std::cout<<"fuck";}
+        a[0] += a[1];
+        a[0]-=a[1];
+        if (a[0]!=a[2])
         {
-            std::cout << "Trial failed for:\t" << a[0] << " and\t" << a[1] << "with sum equal:\t" << (a[0] + a[1]) << " and difference equal:\t" << ((a[0] - a[1]) + a[1]) << std::endl;
+            std::cout << "Trial failed for:\n" << (a[0]-a[1]) << " \n" << a[2] << "\n" << a[1]<<std::endl;//<< " and difference equal:\t" << ((a[0] - a[1]) + a[1]) << std::endl;
             failures++;
         }
         else
         {
-            std::cout << "Trial passed for:\t" << a[0] << " and\t" << a[1] << " with sum of:\t" << (a[0] + a[1]) << std::endl;
+            //std::cout << "Trial passed for:\t" << a[0] << " and\t" << a[1] << " with sum of:\t" << (a[0] + a[1]) << std::endl;
         }
     }
     double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
     std::cout << failures << " / " << n << " trials failed" << std::endl;
     return failures;
-}
+}/*
 unsigned int Tester::testMultiplication(unsigned int n)
 {
     unsigned int failures = 0;
@@ -133,7 +137,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
     std::cout << failures << " / " << n << " trials failed" << std::endl;
     return failures;
-}
+}*/
 unsigned int Tester::testShift(unsigned int n) // Manual
 {
     unsigned int failures = 0;
@@ -149,13 +153,13 @@ unsigned int Tester::testShift(unsigned int n) // Manual
     {
         int x = dist(engine);
         int y = dist2(engine);
-        uint32_t * ptr = new uint32_t[2];
+        uint32_t *ptr = new uint32_t[2];
         ptr[0] = x;
         ptr[1] = y;
-        BigInt a(ptr,2);
-        for(int i = 0;i<20;i++)
+        BigInt a(ptr, 2);
+        for (int i = 0; i < 20; i++)
         {
-            std::cout << (a<<(-i)).toBin() << std::endl;
+            std::cout << (a << (-i)).toBin() << std::endl;
             std::cin.get();
         }
         std::cout << "fin" << std::endl;
@@ -180,14 +184,30 @@ unsigned int Tester::testDivision(unsigned int n)
     {
         int x = dist(engine);
         int y = dist2(engine);
-        if(y==0){continue;}
-        BigInt a((uint32_t)x);
-        BigInt b((uint32_t)y);
-        BigInt c((uint32_t)(x / y));
-
-        if ((a / b) != c)
+        if (y == 0)
         {
-            std::cout << "Trial failed for:\t" << x << " and\t" << y << " with result equal:\t" << (a / b) << " and answer equal:\t" << c << std::endl;
+            continue;
+        }
+        //x = 721013;
+        //y = 3469;
+        BigInt a((uint32_t)x);
+        a.reallocate(20);
+        BigInt b((uint32_t)1);
+        b.reallocate(20);
+        for (int j = 0; j < 10; j++)
+        {
+            int h = dist(engine) + 1;
+            a = a * h;
+            b = b * h;
+        }
+        //std::cout << a.toBin() << std::endl;
+        //std::cout << b.toBin() << std::endl;
+        //std::cin.get();
+        BigInt c = (a / b);
+
+        if (c != x)
+        {
+            std::cout << "Trial failed for:\t" << x << " and\t" << y << " with result equal:\t" << c << " and answer equal:\t" << x << std::endl;
             failures++;
         }
         else
@@ -199,4 +219,72 @@ unsigned int Tester::testDivision(unsigned int n)
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
     std::cout << failures << " / " << n << " trials failed" << std::endl;
     return failures;
+}
+unsigned int Tester::testMultiplication(unsigned int n)
+{
+    unsigned int failures = 0;
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    seed = 1609182799086625063;
+    std::default_random_engine engine(seed);
+    auto dist = std::uniform_int_distribution(0, 999999);
+    auto dist2 = std::uniform_int_distribution(0, 9999);
+
+    std::cout << "generated on seed: " << seed << std::endl;
+
+    startTimer();
+    for (int i = 0; i < n; i++)
+    {
+        int x = dist(engine);
+        int y = dist2(engine);
+        if (y == 0)
+        {
+            continue;
+        }
+        //x = 721013;
+        //y = 3469;
+        BigInt a((uint32_t)1);
+        a.reallocate(2);
+        BigInt b((uint32_t)1);
+        b.reallocate(2);
+        for (int j = 0; j < 2; j++)
+        {
+            a = a * (dist(engine) + 1);
+            b = b * (dist(engine) + 1);
+        }
+        std::cout << a << std::endl;
+        std::cout << b << std::endl;
+        //std::cin.get();
+        BigInt c = a*b;
+
+        if (c/b != a)
+        {
+            std::cout<<"A: "<<a<<"\t in binary:\t"<<a.toBin()<<std::endl;
+            std::cout<<"B: "<<b<<"\t in binary:\t"<<b.toBin()<<std::endl;
+            std::cout<<"C: "<<c<<"\t in binary:\t"<<c.toBin()<<std::endl;
+            //(a / b);
+            std::cout << "Trial failed for:\t" << x << " and\t" << y << " with result equal:\t" << (c/b).toBin() << " and answer equal:\t" << x << std::endl;
+            failures++;
+        }
+        else
+        {
+            //std::cout<<"Trial passed for:\t"<<a<<" and\t"<<y<<" with result of:\t"<<b<<" or:\t"<<(x<<y)<<std::endl;
+        }
+    }
+    double time = stopTimer();
+    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
+    std::cout << failures << " / " << n << " trials failed" << std::endl;
+    return failures;
+}
+void Tester::manual()
+{
+    BigInt a(25);
+    a.reallocate(3);
+    a.digits[0] = 123;
+    a.digits[1] = 456;
+    a.digits[2] = 789;
+
+    std::cout<<a<<std::endl;
+    BigInt y(a.digits+2,a.n-2);
+    y+=10;
+    std::cout<<a<<std::endl;
 }
