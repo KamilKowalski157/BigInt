@@ -23,7 +23,7 @@ class BigInt
     bool owner = true;
     uint32_t *digits = nullptr;
     unsigned int n = 0; //length of digits table
-    bool sign;
+    bool sign = false;
     
     bool isNegative() const { return (digits != nullptr && (digits[n - 1] & endianMask)); }
     void negate();
@@ -36,14 +36,14 @@ class BigInt
 
     void deallocate();
 
-    void karatsuba(BigInt &a,BigInt &b,BigInt & result, BigInt & buff1,BigInt & buff2);
+    void karatsuba(BigInt &a,BigInt &b,BigInt & result, BigInt & buff1);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
     friend Tester;
 #endif /*__DEBUG__*/
 
-    BigInt(uint32_t *_dig, unsigned int _size) : digits(_dig), n(_size),owner(false){}
+    BigInt(const BigInt & temp, unsigned int pos, unsigned int _size) : digits(temp.digits+pos), n(_size),owner(false),sign(temp.sign){}
 
 public:
     BigInt(int a = 0)
@@ -67,7 +67,7 @@ public:
     BigInt &operator+=(const BigInt &b);
     BigInt &operator-=(const BigInt &b);
     BigInt &operator*=(const BigInt &b);
-    BigInt &operator*=(int32_t b);
+    BigInt &operator*=(uint32_t b);
     BigInt &operator/=(const BigInt &b);
 
     BigInt operator<<(int shift) const;
