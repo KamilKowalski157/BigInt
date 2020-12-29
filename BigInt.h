@@ -28,6 +28,7 @@ class BigInt
     bool isNegative() const { return (digits != nullptr && (digits[n - 1] & endianMask)); }
     void negate();
     bool abs();
+    void clear();
 
     unsigned int getActualSize() const; // returns size without leading 0s (or 1s in case of negative complementation)
 
@@ -56,7 +57,7 @@ public:
     BigInt(BigInt &&b);
     BigInt(const BigInt &b);
 
-    void reallocate(unsigned int target_size); // should return pointer and size, and be const for maximum efficiency (minimizing new calls)
+    bool reallocate(unsigned int target_size); // should return pointer and size, and be const for maximum efficiency (minimizing new calls)
 
     BigInt operator+(const BigInt &b) const;
     BigInt operator-(const BigInt &b) const;

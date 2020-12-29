@@ -1,6 +1,5 @@
 #include "Tester.h"
 #include "BigInt.h"
-#include <random>
 #include <iostream>
 
 void Tester::startTimer()
@@ -237,30 +236,16 @@ unsigned int Tester::testMultiplication(unsigned int n)
 
     std::cout << "generated on seed: " << seed << std::endl;
 
-    startTimer();
+    BigInt a;
+    BigInt b;
+    BigInt c;
+    double time;
     for (int i = 0; i < n; i++)
     {
-        int x = dist(engine);
-        int y = dist2(engine);
-        if (y == 0)
-        {
-            continue;
-        }
-        //x = 721013;
-        //y = 3469;
-        BigInt a((uint32_t)1);
-        a.reallocate(3);
-        BigInt b((uint32_t)1);
-        b.reallocate(3);
-        for (int j = 0; j < 30; j++)
-        {
-            a = a * (dist(engine) + 1);
-            b = b * (dist(engine) + 1);
-        }
-        //std::cout << a << std::endl;
-        //std::cout << b << std::endl;
-        //std::cin.get();
-        BigInt c = a * b;
+        generate(a,4096,engine);
+        generate(b,4096,engine);
+        startTimer();
+        c = a * b;
 
         if (c / b != a)
         {
@@ -275,10 +260,13 @@ unsigned int Tester::testMultiplication(unsigned int n)
         }
         else
         {
-            std::cout << i << " Trial passed for:\t" << a << std::endl;
+            std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
+            //std::cout << i << " Trial passed for:\t" << a << std::endl;
         }
+        time = stopTimer();
+        std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
     }
-    double time = stopTimer();
+    //double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
     std::cout << failures << " / " << n << " trials failed" << std::endl;
     return failures;
@@ -295,4 +283,17 @@ void Tester::manual()
     //BigInt y(a.digits + 2, a.n - 2);
     //y += 10;
     //std::cout << a << std::endl;
+}
+void Tester::generate(BigInt & a,int size, std::default_random_engine & engine)
+{
+    a.reallocate(size);
+    auto dist = std::uniform_int_distribution(0,1);
+    for(int j = 0;j<size;j++)
+    {
+        for(int i = 0;i<32;i++)
+        {
+            a.digits[j] += dist(engine);
+            a.digits[j] = (a.digits[j]<<1);
+        }
+    }
 }

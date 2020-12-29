@@ -5,9 +5,9 @@
 int main(int argc, char ** argv)
 {
     Tester tester;
-    //tester.testAddSubtr(9999999);
-    //tester.testDivision(999999);
-    tester.testMultiplication(999);
+    //tester.testAddSubtr(999999);
+    //tester.testDivision(999);
+    tester.testMultiplication(1);
     //tester.manual();
     return 0;
 }

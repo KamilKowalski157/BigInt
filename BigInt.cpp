@@ -37,6 +37,7 @@ BigInt::BigInt(BigInt &&b)
 {
     if (this != &b)
     {
+        deallocate();
         this->n = b.n;
         this->digits = b.digits;
         sign = b.sign;
@@ -58,6 +59,7 @@ BigInt::~BigInt()
 
 BigInt &BigInt::operator=(BigInt &&b)
 {
+    deallocate();
     std::swap(this->digits, b.digits);
     this->n = b.n;
     sign = b.sign;
@@ -66,11 +68,10 @@ BigInt &BigInt::operator=(BigInt &&b)
 }
 BigInt &BigInt::operator=(const BigInt &b)
 {
-    reallocate(b.n);
+    owner = (reallocate(b.n)|owner);
     memset(this->digits, (~0) * b.sign, n * sizeof(uint32_t));
     memcpy(this->digits, b.digits, sizeof(uint32_t) * b.n);
     sign = b.sign;
-    owner = b.owner;
     return *this;
 }
 std::ostream &operator<<(std::ostream &stream, const BigInt &b)
@@ -99,11 +100,11 @@ void BigInt::negate()
     }
     sign = ((sign == 0) + (buffer != 0)) & 1;
 }
-void BigInt::reallocate(unsigned int target_size)
+bool BigInt::reallocate(unsigned int target_size)
 {
     if (!(target_size > n) || !owner)
     {
-        return;
+        return false;
     }
     unsigned int new_size = n + (n == 0);
     while (new_size < target_size)
@@ -119,6 +120,16 @@ void BigInt::reallocate(unsigned int target_size)
     deallocate();
     n = new_size;
     digits = ptr;
+    return true;
+}
+
+void BigInt::clear()
+{
+    sign = false;
+    for(int i = 0;i<n;i++)
+    {
+        digits[i] = 0;
+    }
 }
 
 std::string BigInt::toBin() const
@@ -343,19 +354,17 @@ BigInt &BigInt::operator+=(const BigInt &b)
     sign = ((sign + b.sign + (buffer != 0)) & 1);
     return *this;
 }
-BigInt &BigInt::operator-=(const BigInt &b1)
+BigInt &BigInt::operator-=(const BigInt &b)
 {
-    BigInt b(b1);
-    b.negate();
-    buffer = 0;
+    buffer = (uint32_t)(1);
     for (int i = 0; i < n; i++)
     {
         buffer += digits[i];
-        buffer += b[i];
+        buffer += (~b[i]);
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    sign = ((sign - b.sign + (buffer != 0)) & 1);
+    sign = ((sign + (!b.sign) + (buffer != 0)) & 1);
     return *this;
 }
 
@@ -424,7 +433,7 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
     BigInt b2(b, b1.n, b.n - b1.n);
 
     BigInt r1(result, 0, 2 * mid);
-    BigInt r2(result, mid, 2 * mid);
+    BigInt r2(result, mid, result.n-mid);
     BigInt r3(result, +2 * mid, 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
@@ -445,20 +454,21 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
 
     bool tempSign = a1.abs() ^ a2.abs();
 
+    buff = r1;
+    buff += r3;
+    r2 += buff;
+
     karatsuba(a1, a2, buf1, buf4);
 
     if (tempSign)
     {
         buf1.negate();
     }
-
-    buf1 += r1;
-    buf1 += r3;
     r2 += buf1;
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
-    BigInt result, a, b, buff1, buff2;
+    BigInt result, a, b, buff1;
     a = *this;
     b = _b;
     result.reallocate(n + b.n);

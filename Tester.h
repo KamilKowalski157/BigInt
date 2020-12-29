@@ -2,6 +2,7 @@
 #define TESTER
 
 #include <chrono>
+#include <random>
 
 class BigInt;
 class Tester
@@ -9,6 +10,8 @@ class Tester
     std::chrono::time_point<std::chrono::system_clock> timer1;
     void startTimer();
     double stopTimer();
+    void generate(BigInt &a, int size, std::default_random_engine &eng);
+
 public:
     unsigned int testAddition(unsigned int n = 1000);
     unsigned int testSubtraction(unsigned int n = 1000);
@@ -17,7 +20,7 @@ public:
     unsigned int testDivision(unsigned int n = 1000);
     unsigned int testMultiplication(unsigned int n = 1000);
     unsigned int testComparision(unsigned int n = 1000);
-    void manual();  
+    void manual();
 };
 
 #endif /*TESTER*/
