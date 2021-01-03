@@ -229,7 +229,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
 {
     unsigned int failures = 0;
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    seed = 1609182799086625063;
+    //seed = 1609182799086625063;
     std::default_random_engine engine(seed);
     auto dist = std::uniform_int_distribution(0, 99999999);
     auto dist2 = std::uniform_int_distribution(0, 99999999);
@@ -239,12 +239,12 @@ unsigned int Tester::testMultiplication(unsigned int n)
     BigInt a;
     BigInt b;
     BigInt c;
-    double time;
+    startTimer();
     for (int i = 0; i < n; i++)
     {
+        std::cout<<i<<"/"<<n<<"\r"<<std::flush;
         generate(a,4096,engine);
         generate(b,4096,engine);
-        startTimer();
         c = a * b;
 
         if (c / b != a)
@@ -260,15 +260,15 @@ unsigned int Tester::testMultiplication(unsigned int n)
         }
         else
         {
-            std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
+            //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
             //std::cout << i << " Trial passed for:\t" << a << std::endl;
         }
-        time = stopTimer();
-        std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
+        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
     }
-    //double time = stopTimer();
+    std::cout<<std::endl;
+    double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
+    std::cout << (n-failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 void Tester::manual()

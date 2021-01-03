@@ -7,7 +7,7 @@ int main(int argc, char ** argv)
     Tester tester;
     //tester.testAddSubtr(999999);
     //tester.testDivision(999);
-    tester.testMultiplication(1);
+    tester.testMultiplication(99999);
     //tester.manual();
     return 0;
 }

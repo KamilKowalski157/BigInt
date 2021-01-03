@@ -64,6 +64,7 @@ public:
     BigInt operator*(const BigInt &b) const;
     BigInt operator*(int32_t b)const;
     BigInt operator/(const BigInt &b) const;
+    BigInt operator%(const BigInt &b) const;
 
     BigInt &operator+=(const BigInt &b);
     BigInt &operator-=(const BigInt &b);
