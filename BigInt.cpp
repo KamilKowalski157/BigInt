@@ -41,7 +41,6 @@ BigInt::BigInt(BigInt &&b)
         this->n = b.n;
         this->digits = b.digits;
         sign = b.sign;
-        owner = b.owner;
         b.digits = nullptr;
     }
 }
@@ -59,32 +58,38 @@ BigInt::~BigInt()
 
 BigInt &BigInt::operator=(BigInt &&b)
 {
+    if (owner ^ b.owner) // ownership types have to match
+    {
+        reallocate(b.n);
+        memset(this->digits, (~0) * b.sign, n * sizeof(uint32_t));
+        memcpy(this->digits, b.digits, sizeof(uint32_t) * std::min(b.n, n));
+        sign = b.sign;
+        return *this;
+    }
+
     deallocate();
     std::swap(this->digits, b.digits);
     this->n = b.n;
     sign = b.sign;
-    owner = b.owner;
     return *this;
 }
 BigInt &BigInt::operator=(const BigInt &b)
 {
-    owner = (reallocate(b.n)|owner);
+    reallocate(b.n);
     memset(this->digits, (~0) * b.sign, n * sizeof(uint32_t));
-    memcpy(this->digits, b.digits, sizeof(uint32_t) * b.n);
+    memcpy(this->digits, b.digits, sizeof(uint32_t) * std::min(b.n, n));
     sign = b.sign;
     return *this;
 }
 std::ostream &operator<<(std::ostream &stream, const BigInt &b)
 {
-    BigInt buff(b);
-    stream << buff.sign << " . ";
-    if (buff.sign)
+    stream << b.sign << " . ";
+    int64_t buff = b.sign;
+    for (int i = 0; i < b.n; i++)
     {
-        //buff.negate();
-    }
-    for (int i = 0; i < buff.n; i++)
-    {
-        stream << buff.digits[b.n - 1 - i] << "\t";
+        buff += (!b.sign) * b.digits[i] + (~b.digits[i]) * b.sign;
+        stream << ((uint32_t)buff) << "\t";
+        buff = (buff >> (sizeof(uint32_t) * 8));
     }
     return stream;
 }
@@ -102,7 +107,7 @@ void BigInt::negate()
 }
 bool BigInt::reallocate(unsigned int target_size)
 {
-    if (!(target_size > n) || !owner)
+    if ((!(target_size > n)) || !owner)
     {
         return false;
     }
@@ -126,7 +131,7 @@ bool BigInt::reallocate(unsigned int target_size)
 void BigInt::clear()
 {
     sign = false;
-    for(int i = 0;i<n;i++)
+    for (int i = 0; i < n; i++)
     {
         digits[i] = 0;
     }
@@ -315,9 +320,9 @@ BigInt BigInt::operator<<(int shift) const // Optimization is very much possible
     for (int i = 0, j = majorOffset; i < result.n; i++, j++)
     {
         buf = (*this)[j + 1];
-        buf = (buf<<(sizeof(uint32_t)*8));
-        buf+=(*this)[j];
-        result.digits[i] = (buf>>(minorOffset));
+        buf = (buf << (sizeof(uint32_t) * 8));
+        buf += (*this)[j];
+        result.digits[i] = (buf >> (minorOffset));
     }
     return result;
 }
@@ -335,9 +340,9 @@ BigInt BigInt::operator>>(int shift) const
     for (int i = 0, j = majorOffset; i < result.n; i++, j++)
     {
         buf = (*this)[j + 1];
-        buf = (buf<<(sizeof(uint32_t)*8));
-        buf+=(*this)[j];
-        result.digits[i] = (buf<<(minorOffset));
+        buf = (buf << (sizeof(uint32_t) * 8));
+        buf += (*this)[j];
+        result.digits[i] = (buf << (minorOffset));
     }
     return result;
 }
@@ -366,6 +371,24 @@ BigInt &BigInt::operator-=(const BigInt &b)
     }
     sign = ((sign + (!b.sign) + (buffer != 0)) & 1);
     return *this;
+}
+
+BigInt BigInt::computeInverse() const
+{
+    BigInt result(-1);
+    BigInt buffer;
+    int k = 10;
+    std::cout << "for: " << (*this) << std::endl;
+    std::cout << "and: " << result << std::endl;
+    while (true)
+    {
+        buffer = result * (*this);
+        buffer = (buffer >> k);
+        buffer.negate();
+        result = result * (buffer + 2);
+        std::cout << result << " " << (((*this) * result) >> k) << std::endl;
+        std::cin.get();
+    }
 }
 
 BigInt BigInt::operator/(const BigInt &b) const
@@ -402,8 +425,13 @@ BigInt BigInt::operator/(const BigInt &b) const
     result -= one[buffer.sign] * buffer.sign;
     return result;
 }
+
 void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
 {
+    if (result.n == 0)
+    {
+        return;
+    }
     if (_a.n < 2)
     {
         if (_a.n == 1)
@@ -433,24 +461,22 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
     BigInt b2(b, b1.n, b.n - b1.n);
 
     BigInt r1(result, 0, 2 * mid);
-    BigInt r2(result, mid, result.n-mid);
-    BigInt r3(result, +2 * mid, 2 * mid);
+    BigInt r2(result, mid, result.n - mid);
+    BigInt r3(result, 2 * mid, 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
     BigInt buf2(buff, buf1.n, mid);
-    BigInt buf3(buff, buf1.n + buf2.n, buff.n - buf1.n - buf2.n);
-    BigInt buf4(buff, buf1.n, buff.n - buf1.n);
-
-    buf2 = a1;
-    buf2 -= a2;
-    buf3 = b2;
-    buf3 -= b1;
+    BigInt buf3(buff, 0, mid);
+    BigInt buf4(buff, buf3.n, mid);
 
     karatsuba(a1, b1, r1, buf1);
     karatsuba(a2, b2, r3, buf1);
 
-    a1 = buf2;
-    a2 = buf3;
+    buf2 = a2;
+    buf3 = b1;
+
+    a1 -= b1;
+    b2 -= a2;
 
     bool tempSign = a1.abs() ^ a2.abs();
 
@@ -459,6 +485,7 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
     r2 += buff;
 
     karatsuba(a1, a2, buf1, buf4);
+    a1 += 
 
     if (tempSign)
     {
@@ -471,7 +498,7 @@ BigInt BigInt::operator*(const BigInt &_b) const
     BigInt result, a, b, buff1;
     a = *this;
     b = _b;
-    result.reallocate(n + b.n);
+    result.reallocate(n);
     buff1.reallocate(result.n);
     bool sign = a.abs() ^ b.abs();
     result.karatsuba(a, b, result, buff1);
@@ -507,6 +534,21 @@ BigInt &BigInt::operator*=(uint32_t b)
         buffer += (uint64_t)digits[i] * (uint64_t)b;
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
+    }
+    return *this;
+}
+BigInt &BigInt::operator*=(const BigInt &_b)
+{
+    BigInt a, b, buff1;
+    a = *this;
+    b = _b;
+    this->reallocate(n + b.n);
+    buff1.reallocate(this->n);
+    bool sign = a.abs() ^ b.abs();
+    this->karatsuba(a, b, *this, buff1);
+    if (sign)
+    {
+        negate();
     }
     return *this;
 }

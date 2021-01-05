@@ -213,6 +213,7 @@ unsigned int Tester::testDivision(unsigned int n)
         if (c != x)
         {
             std::cout << "Trial failed for:\t" << x << " and\t" << y << " with result equal:\t" << c << " and answer equal:\t" << x << std::endl;
+            //return 0;
             failures++;
         }
         else
@@ -239,12 +240,14 @@ unsigned int Tester::testMultiplication(unsigned int n)
     BigInt a;
     BigInt b;
     BigInt c;
+    a.reallocate(1024);
+    b.reallocate(1024);
     startTimer();
     for (int i = 0; i < n; i++)
     {
         std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,4096,engine);
-        generate(b,4096,engine);
+        generate(a,256,engine);
+        generate(b,16,engine);
         c = a * b;
 
         if (c / b != a)
@@ -254,6 +257,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
             std::cout << "C: " << c << "\t in binary:\t" << c.toBin() << std::endl;
             //(a / b);
             std::cout << i << " Trial failed for:\t" << a << " and\t" << c << " with result equal:\t" << (c / b) << std::endl;
+            return 0;
             failures++;
             BigInt d = a*b;
             std::cout<<(d/b)<<std::endl;
@@ -263,7 +267,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
             //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
             //std::cout << i << " Trial passed for:\t" << a << std::endl;
         }
-        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
+        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;*/
     }
     std::cout<<std::endl;
     double time = stopTimer();
@@ -273,16 +277,8 @@ unsigned int Tester::testMultiplication(unsigned int n)
 }
 void Tester::manual()
 {
-    BigInt a(25);
-    a.reallocate(3);
-    a.digits[0] = 123;
-    a.digits[1] = 456;
-    a.digits[2] = 789;
-
-    std::cout << a << std::endl;
-    //BigInt y(a.digits + 2, a.n - 2);
-    //y += 10;
-    //std::cout << a << std::endl;
+    BigInt a(2137);
+    a.computeInverse();
 }
 void Tester::generate(BigInt & a,int size, std::default_random_engine & engine)
 {
@@ -292,8 +288,8 @@ void Tester::generate(BigInt & a,int size, std::default_random_engine & engine)
     {
         for(int i = 0;i<32;i++)
         {
-            a.digits[j] += dist(engine);
             a.digits[j] = (a.digits[j]<<1);
+            a.digits[j] += dist(engine);
         }
     }
 }
