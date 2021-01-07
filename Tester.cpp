@@ -78,23 +78,12 @@ unsigned int Tester::testAddSubtr(unsigned int n)
     std::cout << "generated on seed: " << seed << std::endl;
 
     startTimer();
+    BigInt a[3];
     for (int i = 0; i < n; i++)
     {
-        BigInt a[3];
-        a[0].reallocate(10);
-        a[1].reallocate(10);
-        for (int j = 0; j < 8; j++)
-        {
-            for (int k = 0; k < 2; k++)
-            {
-                a[k].digits[j] = dist(engine);
-            }
-        }
+        generate(a[0],1024,engine);
+        generate(a[1],1024,engine);
         a[2] = a[0];
-        if (a[2] != a[0])
-        {
-            std::cout << "fuck";
-        }
         a[0] += a[1];
         a[0] -= a[1];
         if (a[0] != a[2])
