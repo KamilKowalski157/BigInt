@@ -98,14 +98,17 @@ std::ostream &operator<<(std::ostream &stream, const BigInt &b)
 
 void BigInt::negate()
 {
+    //uint32_t mask =0;
     buffer = 1; //add 1 to least mattering bit
     for (int i = 0; i < n; i++)
     {
+        //mask = (mask|digits[i]);
         buffer += (~digits[i]);
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    *sign = (((*sign == 0) + (buffer != 0)) & 1);
+    *sign += (1+buffer);
+    //*sign *= (mask!=1);
 }
 bool BigInt::reallocate(unsigned int target_size)
 {
@@ -144,6 +147,8 @@ void BigInt::clear()
 std::string BigInt::toBin() const
 {
     std::string result;
+    result += '0'+(char)isNegative();
+    result+=".";
     for (int i = 0; i < n; i++)
     {
         result += var2Bin(digits[n - 1 - i]);
@@ -187,34 +192,30 @@ unsigned int BigInt::getActualSize() const
 
 bool BigInt::operator<(const BigInt &b) const
 {
-    bool mySign = sign;
-    bool bSign = b.sign;
-    if (mySign ^ bSign)
+    if (isNegative() ^ b.isNegative())
     {
-        return mySign;
+        return isNegative();
     }
     for (int i = std::max(n - 1, b.n - 1); i >= 0; --i)
     {
         if ((*this)[i] < b[i])
         {
-            return !mySign;
+            return !isNegative();
         }
     }
     return false;
 }
 bool BigInt::operator>(const BigInt &b) const
 {
-    bool mySign = sign;
-    bool bSign = b.sign;
-    if (mySign ^ bSign)
+    if (isNegative() ^ b.isNegative())
     {
-        return bSign;
+        return b.isNegative();
     }
     for (int i = n - 1; i >= 0; --i)
     {
         if ((*this)[i] > b[i])
         {
-            return !mySign;
+            return !isNegative();
         }
     }
     return false;
@@ -362,7 +363,7 @@ BigInt &BigInt::operator+=(const BigInt &b) // FIXME
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    *sign = ((*sign + *b.sign + (buffer != 0)) & 1);
+    *sign += (*b.sign + buffer);
     return *this;
 }
 BigInt &BigInt::operator-=(const BigInt &b)
@@ -370,14 +371,14 @@ BigInt &BigInt::operator-=(const BigInt &b)
     buffer = (uint32_t)(1);
     unsigned int min = std::min(n, b.n);
     unsigned int i;
-    for (i = 0;  (i < n) && (buffer || i < b.n); ++i)
+    for (i = 0; (i < n) && (buffer || i < b.n); ++i)
     {
         buffer += digits[i];
         buffer += (~b[i]);
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    *sign = ((*sign + !(*b.sign) + (buffer != 0)) & 1);
+    *sign += (buffer + (!*b.sign));
     return *this;
 }
 
@@ -438,44 +439,36 @@ BigInt BigInt::operator/(const BigInt &b) const
     return result;
 }
 
-void BigInt::addMul(const BigInt &a, uint32_t b) // optimized for speed
+void BigInt::addMul(const BigInt &_a, const BigInt &_b)
 {
     buffer = 0;
-    unsigned int min = std::min(n, a.n);
+    const BigInt *a = &_a;
+    const BigInt *b = &_b;
+    if(_a.n==1)
+    {
+        a = &_b;
+        b = &_a;
+    }
+    uint64_t compl1 = ((~(uint64_t)0)<<(sizeof(uint32_t)*8))*a->isNegative();
+    uint64_t compl2 = ((~(uint64_t)0)<<(sizeof(uint32_t)*8))*b->isNegative();
+    b->buffer = compl2+b->digits[0];
     unsigned int i;
-    for (i = 0; i < min; ++i)
+    for (i = 0; i < a->n; ++i)
     {
-        buffer += ((uint64_t)a.digits[i]) * b;
+        a->buffer = a->digits[i];
+        a->buffer += compl1;
+        a->buffer *= b->buffer;
+        buffer += a->buffer;
         buffer += digits[i];
         digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
+        buffer = (buffer>>(sizeof(uint32_t)*8));
     }
-    for (; buffer && (i < n); ++i)
-    {
-        digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-}
-
-void BigInt::subMul(const BigInt &a, uint32_t b)
-{
-    buffer = b;
-    unsigned int min = std::min(a.n, n);
-    unsigned int i;
-    for (i = 0; i < min; ++i)
-    {
-        buffer += (~((uint64_t)a.digits[i])) * b;
-        buffer += digits[i];
-        digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    for (; (i < n) && buffer; ++i)
+    for(;(i<n)&&buffer;++i)
     {
         buffer += digits[i];
         digits[i] = buffer;
-        buffer = (buffer > (sizeof(uint32_t) * 8));
+        buffer = (buffer>>(sizeof(uint32_t)*8));
     }
-    *sign = ((*sign + buffer) & 1);
 }
 
 uint64_t BigInt::carryAdd(const BigInt &a, uint64_t b)
@@ -504,17 +497,10 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
     {
         return;
     }
-    if (_a.n == 1)
+    if ((_a.n - 1) * (_b.n - 1) == 0)
     {
-        (result.*mulFunctions[_b.isNegative() ^ _a.isNegative()])(_b, _a.digits[0]);
+        result.addMul(_a, _b);
         return;
-        //result.addMul(_b, _a.digits[0]);
-    }
-    if (_b.n == 1)
-    {
-        (result.*mulFunctions[_b.isNegative() ^ _a.isNegative()])(_a, _b.digits[0]);
-        return;
-        //result.addMul(_a, _b.digits[0]);
     }
 
     BigInt &a = (_a.n < _b.n) ? _b : _a; // greater
@@ -546,16 +532,16 @@ void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
     uint64_t buff3 = r12.carryAdd(r11, 0);
     r2 += buff3;
 
-    BigInt r3(result, 2 * mid, result.n - (2 * mid));
-    a1 -= b1;
-    a2 -= b2;
-    a2.negate();
+    BigInt r3(result,  mid, result.n -  mid);
+    a1 -= a2;
+    b1.negate();
+    b1 += b2;
 
-    karatsuba(a1, a2, r3, buff);
+    karatsuba(a1, b1, r3, buff);
 
-    a2.negate();
-    a1 += b1;
-    a2 += b2;
+    b1 -= b2;
+    b1.negate();
+    a1 += a2;
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {

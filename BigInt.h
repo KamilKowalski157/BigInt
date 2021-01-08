@@ -23,12 +23,12 @@ class BigInt
 
     const bool owner = true;
 
-    uint32_t *digits = new uint32_t[1];
+    uint32_t *digits = new uint32_t[2];
     uint32_t *iterator = digits;
     uint32_t *end = digits;
 
     unsigned int n = 0; //length of digits table
-    uint32_t *sign = new uint32_t;
+    uint32_t *sign = digits+1;
 
     void negate();
     bool abs();
@@ -40,14 +40,13 @@ class BigInt
     // internal functions optimized for specific operations...
     void shiftLeft();  //Fast implementation for single shift
     void shiftRight(); // Fast implementation for single shift
-    void addMul(const BigInt &a, uint32_t b);
-    void subMul(const BigInt &a, uint32_t b);
+    void addMul(const BigInt &a, const BigInt &b);
+    void subMul(const BigInt &a, const BigInt &b);
     uint64_t carryAdd(const BigInt &a, uint64_t buf);
     //uint64_t carrySub(const BigInt &a, uint64_t buf);
 
     void deallocate();
 
-    void (BigInt::*mulFunctions [2]) (const BigInt&,uint32_t) = {&BigInt::addMul,&BigInt::subMul};
     void karatsuba(BigInt &a, BigInt &b, BigInt &result, BigInt &buff1);
 
     BigInt computeInverse() const;
@@ -58,7 +57,7 @@ class BigInt
 #endif /*__DEBUG__*/
 
     BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) :  owner(false), digits(temp.digits + std::min(pos, temp.n - 1)),
-                                                                       n(std::min(temp.n - pos, _size)), sign(temp.sign)
+                                                                       n(std::min(temp.n - pos, _size)), sign(new uint32_t(*temp.sign))
     {
     }
 

@@ -191,7 +191,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
 {
     unsigned int failures = 0;
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //seed = 1609182799086625063;
+    seed = 1610096653889233856;
     std::default_random_engine engine(seed);
     auto dist = std::uniform_int_distribution(0, 99999999);
     auto dist2 = std::uniform_int_distribution(0, 99999999);
@@ -207,12 +207,12 @@ unsigned int Tester::testMultiplication(unsigned int n)
     for (int i = 0; i < n; i++)
     {
         std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        //generate(a,2,engine);
-        //generate(b,2,engine);
-        a.digits[0] = 1;
-        a.digits[1] = 1;
-        b.digits[0] = 1;
-        b.digits[1] = 1;
+        generate(a,2,engine);
+        generate(b,2,engine);
+        //a.digits[0] = 1;
+        //a.digits[1] = 1;
+        //b.digits[0] = 1;
+        //b.digits[1] = 1;
         c = a * b;
 
         if (c / b != a)
