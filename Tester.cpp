@@ -232,8 +232,8 @@ unsigned int Tester::testMultiplication(unsigned int n)
     for (int i = 0; i < n; i++)
     {
         std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,4096,engine);
-        generate(b,4096,engine);
+        generate(a,128,engine);
+        generate(b,128,engine);
         c = a * b;
 
         if (c / b != a)

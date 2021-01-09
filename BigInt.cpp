@@ -68,7 +68,7 @@ BigInt &BigInt::operator=(BigInt &&b)
 }
 BigInt &BigInt::operator=(const BigInt &b)
 {
-    owner = (reallocate(b.n)|owner);
+    owner = (reallocate(b.n) | owner);
     memset(this->digits, (~0) * b.sign, n * sizeof(uint32_t));
     memcpy(this->digits, b.digits, sizeof(uint32_t) * b.n);
     sign = b.sign;
@@ -126,7 +126,7 @@ bool BigInt::reallocate(unsigned int target_size)
 void BigInt::clear()
 {
     sign = false;
-    for(int i = 0;i<n;i++)
+    for (int i = 0; i < n; i++)
     {
         digits[i] = 0;
     }
@@ -315,9 +315,9 @@ BigInt BigInt::operator<<(int shift) const // Optimization is very much possible
     for (int i = 0, j = majorOffset; i < result.n; i++, j++)
     {
         buf = (*this)[j + 1];
-        buf = (buf<<(sizeof(uint32_t)*8));
-        buf+=(*this)[j];
-        result.digits[i] = (buf>>(minorOffset));
+        buf = (buf << (sizeof(uint32_t) * 8));
+        buf += (*this)[j];
+        result.digits[i] = (buf >> (minorOffset));
     }
     return result;
 }
@@ -335,9 +335,9 @@ BigInt BigInt::operator>>(int shift) const
     for (int i = 0, j = majorOffset; i < result.n; i++, j++)
     {
         buf = (*this)[j + 1];
-        buf = (buf<<(sizeof(uint32_t)*8));
-        buf+=(*this)[j];
-        result.digits[i] = (buf<<(minorOffset));
+        buf = (buf << (sizeof(uint32_t) * 8));
+        buf += (*this)[j];
+        result.digits[i] = (buf << (minorOffset));
     }
     return result;
 }
@@ -402,65 +402,79 @@ BigInt BigInt::operator/(const BigInt &b) const
     result -= one[buffer.sign] * buffer.sign;
     return result;
 }
-void BigInt::karatsuba(BigInt &_a, BigInt &_b, BigInt &result, BigInt &buff)
+void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 {
-    if (_a.n < 2)
+    if (a.n * b.n == 0)
     {
-        if (_a.n == 1)
-        {
-            result = _b;
-            result *= _a.digits[0];
-        }
         return;
     }
-    if (_b.n < 2)
+    if ((b.n - 1) * (a.n - 1) == 0)
     {
-        if (_b.n == 1)
+        if (b.n == 1)
         {
-            result = _a;
-            result *= _b.digits[0];
+            (*this) = a;
+            (*this) *= b.digits[0];
+            return;
         }
+        (*this) = b;
+        (*this) *= a.digits[0];
         return;
     }
-    BigInt &a = (_a.n < _b.n) ? _b : _a; // greater
-    BigInt &b = (_a.n < _b.n) ? _a : _b; // lesser
 
-    unsigned int mid = a.n / 2;
+    unsigned int mid = std::max(a.n, b.n) / 2;
 
     BigInt a1(a, 0, mid);
     BigInt a2(a, a1.n, a.n - a1.n);
-    BigInt b1(b, 0, std::min(mid, b.n));
+    BigInt b1(b, 0, mid);
     BigInt b2(b, b1.n, b.n - b1.n);
 
-    BigInt r1(result, 0, 2 * mid);
-    BigInt r2(result, mid, result.n-mid);
-    BigInt r3(result, +2 * mid, 2 * mid);
+    BigInt r1((*this), 0, 2 * mid);
+    BigInt r2((*this), mid, n - mid);
+    BigInt r3((*this), +2 * mid, 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
-    BigInt buf2(buff, buf1.n, mid);
-    BigInt buf3(buff, buf1.n + buf2.n, buff.n - buf1.n - buf2.n);
+    //BigInt buf2(buff, buf1.n, mid);
+    //BigInt buf3(buff, buf1.n + buf2.n, buff.n - buf1.n - buf2.n);
     BigInt buf4(buff, buf1.n, buff.n - buf1.n);
 
-    buf2 = a1;
-    buf2 -= a2;
-    buf3 = b2;
-    buf3 -= b1;
+    //buf2 = a1;
+    //buf2 -= a2;
+    //buf3 = b2;
+    //buf3 -= b1;
 
-    karatsuba(a1, b1, r1, buf1);
-    karatsuba(a2, b2, r3, buf1);
+    r1.karatsuba(a1, b1, buf1);
+    r3.karatsuba(a2, b2, buf1);
 
-    a1 = buf2;
-    a2 = buf3;
+    a1 -= a2;
+    b1.negate();
+    b1 += b2;
 
-    bool tempSign = a1.abs() ^ a2.abs();
+    //a1 = buf2;
+    //a2 = buf3;
+
+    bool signa = a1.abs();
+    bool signb = b1.abs();
 
     buff = r1;
     buff += r3;
     r2 += buff;
 
-    karatsuba(a1, a2, buf1, buf4);
+    buf1.karatsuba(a1, b1, buf4);
 
-    if (tempSign)
+    if (signa)
+    {
+        a1.negate();
+    }
+    if (signb)
+    {
+        b1.negate();
+    }
+
+    b1 -= b2;
+    b1.negate();
+    a1 += a2;
+
+    if (signa ^ signb)
     {
         buf1.negate();
     }
@@ -474,7 +488,7 @@ BigInt BigInt::operator*(const BigInt &_b) const
     result.reallocate(n + b.n);
     buff1.reallocate(result.n);
     bool sign = a.abs() ^ b.abs();
-    result.karatsuba(a, b, result, buff1);
+    result.karatsuba(a, b, buff1);
     if (sign)
     {
         result.negate();
@@ -502,7 +516,7 @@ BigInt BigInt::operator*(int32_t b) const
 BigInt &BigInt::operator*=(uint32_t b)
 {
     buffer = 0;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; ++i)
     {
         buffer += (uint64_t)digits[i] * (uint64_t)b;
         digits[i] = buffer;

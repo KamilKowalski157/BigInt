@@ -37,7 +37,7 @@ class BigInt
 
     void deallocate();
 
-    void karatsuba(BigInt &a,BigInt &b,BigInt & result, BigInt & buff1);
+    void karatsuba(BigInt &a,BigInt &b, BigInt & buff1);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
