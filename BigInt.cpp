@@ -451,6 +451,7 @@ void BigInt::addMul(const BigInt &_a, const BigInt &_b)
     }
     uint64_t compl1 = ((~(uint64_t)0)<<(sizeof(uint32_t)*8))*a->isNegative();
     uint64_t compl2 = ((~(uint64_t)0)<<(sizeof(uint32_t)*8))*b->isNegative();
+    uint64_t compl3 = ((~(uint64_t)0)<<(sizeof(uint32_t)*8))*(b->isNegative()^a->isNegative());
     b->buffer = compl2+b->digits[0];
     unsigned int i;
     for (i = 0; i < a->n; ++i)
@@ -465,6 +466,7 @@ void BigInt::addMul(const BigInt &_a, const BigInt &_b)
     }
     for(;(i<n)&&buffer;++i)
     {
+        buffer += compl3;
         buffer += digits[i];
         digits[i] = buffer;
         buffer = (buffer>>(sizeof(uint32_t)*8));
@@ -475,18 +477,18 @@ uint64_t BigInt::carryAdd(const BigInt &a, uint64_t b)
 {
     buffer = b;
     unsigned int i;
-    for (i = 0; i < std::min(n, a.n); i++)
+    for (i = 0; i < std::min(n, a.n); ++i)
     {
         buffer += digits[i];
         buffer += a.digits[i];
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    for (; i < n; ++i)
+    for (; (i < n)&&buffer; ++i)
     {
         buffer += digits[i];
         digits[i] = buffer;
-        buffer = (buffer > (sizeof(uint32_t) * 8));
+        buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
     return buffer;
 }

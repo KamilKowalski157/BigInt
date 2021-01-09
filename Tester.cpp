@@ -201,14 +201,14 @@ unsigned int Tester::testMultiplication(unsigned int n)
     BigInt a;
     BigInt b;
     BigInt c;
-    a.reallocate(4);
-    b.reallocate(4);
+    a.reallocate(8);
+    b.reallocate(8);
     startTimer();
     for (int i = 0; i < n; i++)
     {
         std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,2,engine);
-        generate(b,2,engine);
+        generate(a,4,engine);
+        generate(b,4,engine);
         //a.digits[0] = 1;
         //a.digits[1] = 1;
         //b.digits[0] = 1;

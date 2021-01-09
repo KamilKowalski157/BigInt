@@ -8,6 +8,6 @@ int main(int argc, char ** argv)
     //tester.testAddSubtr(999);
     //tester.testDivision(999);
     //tester.manual();
-    tester.testMultiplication(99);
+    tester.testMultiplication(1);
     return 0;
 }
