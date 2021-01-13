@@ -228,12 +228,14 @@ unsigned int Tester::testMultiplication(unsigned int n)
     BigInt a;
     BigInt b;
     BigInt c;
+    a.reallocate(1024);
+    b.reallocate(1024);
     startTimer();
     for (int i = 0; i < n; i++)
     {
         std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,128,engine);
-        generate(b,128,engine);
+        generate(a,256,engine);
+        generate(b,256,engine);
         c = a * b;
 
         if (c / b != a)
@@ -252,7 +254,7 @@ unsigned int Tester::testMultiplication(unsigned int n)
             //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
             //std::cout << i << " Trial passed for:\t" << a << std::endl;
         }
-        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
+        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;*/
     }
     std::cout<<std::endl;
     double time = stopTimer();
@@ -262,13 +264,15 @@ unsigned int Tester::testMultiplication(unsigned int n)
 }
 void Tester::manual()
 {
-    BigInt a(25);
-    a.reallocate(3);
-    a.digits[0] = 123;
-    a.digits[1] = 456;
-    a.digits[2] = 789;
-
-    std::cout << a << std::endl;
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine engine(seed);
+    std::cout<<"seed: "<<seed<<std::endl;
+    BigInt k;
+    k.reallocate(4);
+    //generate(k,4,engine);
+    k.digits[1] = 38145;
+    std::cout<<k.toBin()<<std::endl;
+    k.computeInverse();
     //BigInt y(a.digits + 2, a.n - 2);
     //y += 10;
     //std::cout << a << std::endl;
@@ -285,4 +289,39 @@ void Tester::generate(BigInt & a,int size, std::default_random_engine & engine)
             a.digits[j] = (a.digits[j]<<1);
         }
     }
+}
+unsigned int Tester::testInversion(unsigned int n)
+{
+    unsigned int failures =0;
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    seed = 1610574162010838348;
+    std::default_random_engine engine(seed);
+    std::cout<<"generated on seed: "<<seed<<std::endl;
+    BigInt a;
+    BigInt b;
+    for(int i = 0;i<n;i++)
+    {
+        //std::cout<<"trial "<<i<<"/"<<n<<"\r"<<std::flush;
+        generate(a,2,engine);
+        generate(b,2,engine);
+        if(b>a){i--;continue;}
+        BigInt y = (b.computeInverse());
+        if(a/b!=((y*a)>>96))
+        {
+            failures++;
+            std::cout<<"Test failed for a: "<<a<<std::endl;
+            std::cout<<"b: "<<b<<std::endl;
+            std::cout<<"inverse: "<<y<<std::endl;
+            std::cout<<"a/b : "<<(a/b)<<std::endl;
+            std::cout<<"a x 1/b: "<<a*y<<std::endl;
+            std::cout<<"1: "<<b*y<<std::endl;
+            std::cin.get();
+        }
+        else
+        {
+            std::cout<<(a/b)<<std::endl;
+        }
+        
+    }
+    return failures;
 }

@@ -20,6 +20,7 @@ public:
     unsigned int testDivision(unsigned int n = 1000);
     unsigned int testMultiplication(unsigned int n = 1000);
     unsigned int testComparision(unsigned int n = 1000);
+    unsigned int testInversion(unsigned int n = 1000);
     void manual();
 };
 

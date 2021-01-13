@@ -20,11 +20,11 @@ class BigInt
 
     mutable uint64_t buffer;
 
-    bool owner = true;
+    const bool owner;
     uint32_t *digits = nullptr;
     unsigned int n = 0; //length of digits table
     bool sign = false;
-    
+
     bool isNegative() const { return (digits != nullptr && (digits[n - 1] & endianMask)); }
     void negate();
     bool abs();
@@ -34,20 +34,30 @@ class BigInt
 
     void shiftLeft();  //Fast implementation for single shift
     void shiftRight(); // Fast implementation for single shift
+    BigInt computeInverse() const;
 
     void deallocate();
 
-    void karatsuba(BigInt &a,BigInt &b, BigInt & buff1);
+    void karatsuba(BigInt &a, BigInt &b, BigInt &buff1);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
     friend Tester;
 #endif /*__DEBUG__*/
 
-    BigInt(const BigInt & temp, unsigned int pos, unsigned int _size) : digits(temp.digits+pos), n(_size),owner(false),sign(temp.sign){}
+    /*digits(temp.digits + std::min(temp.n - 1, pos)),
+                                                                       n(std::min((long)_size, digits - temp.digits)),
+                                                                       owner(false),
+                                                                       sign(temp.sign)*/
+    BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.n, pos)),
+                                                                       n(std::min((long)_size,temp.n - (digits - temp.digits))),
+                                                                       owner(false),
+                                                                       sign(temp.sign)
+    {
+    }
 
 public:
-    BigInt(int a = 0)
+    BigInt(int a = 0) : owner(true)
     {
         reallocate(1);
         digits[0] = a;
@@ -62,7 +72,7 @@ public:
     BigInt operator+(const BigInt &b) const;
     BigInt operator-(const BigInt &b) const;
     BigInt operator*(const BigInt &b) const;
-    BigInt operator*(int32_t b)const;
+    BigInt operator*(int32_t b) const;
     BigInt operator/(const BigInt &b) const;
     BigInt operator%(const BigInt &b) const;
 
@@ -85,7 +95,7 @@ public:
 
     uint32_t operator[](int i) const
     {
-        return digits[i%n]*(i>=0)*(i<n) + (~0)*sign*(!(i<n));
+        return digits[i * (i < n)] * (i >= 0) * (i < n) + (~0) * sign * (!(i < n));
     }
     //BigInt & operator()(const BigInt & b);
 

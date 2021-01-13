@@ -33,7 +33,7 @@ void BigInt::deallocate()
     }
 }
 
-BigInt::BigInt(BigInt &&b)
+BigInt::BigInt(BigInt &&b) : owner(b.owner)
 {
     if (this != &b)
     {
@@ -41,11 +41,10 @@ BigInt::BigInt(BigInt &&b)
         this->n = b.n;
         this->digits = b.digits;
         sign = b.sign;
-        owner = b.owner;
         b.digits = nullptr;
     }
 }
-BigInt::BigInt(const BigInt &b)
+BigInt::BigInt(const BigInt &b) : owner(b.owner)
 {
     *this = b;
 }
@@ -59,18 +58,23 @@ BigInt::~BigInt()
 
 BigInt &BigInt::operator=(BigInt &&b)
 {
+    if(b.n<n)
+    {
+        (*this) = (BigInt&)b;
+        return *this;
+    }
     deallocate();
     std::swap(this->digits, b.digits);
     this->n = b.n;
     sign = b.sign;
-    owner = b.owner;
     return *this;
 }
 BigInt &BigInt::operator=(const BigInt &b)
 {
-    owner = (reallocate(b.n) | owner);
+    //owner = (reallocate(b.n) | owner);
+    reallocate(b.n);
     memset(this->digits, (~0) * b.sign, n * sizeof(uint32_t));
-    memcpy(this->digits, b.digits, sizeof(uint32_t) * b.n);
+    memcpy(this->digits, b.digits, sizeof(uint32_t) * std::min(b.n, n));
     sign = b.sign;
     return *this;
 }
@@ -404,8 +408,9 @@ BigInt BigInt::operator/(const BigInt &b) const
 }
 void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 {
-    if (a.n * b.n == 0)
+    if ((a.n!=0) * (b.n!=0) * (n!=0) == 0)
     {
+        this->clear();
         return;
     }
     if ((b.n - 1) * (a.n - 1) == 0)
@@ -421,39 +426,34 @@ void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
         return;
     }
 
-    unsigned int mid = std::max(a.n, b.n) / 2;
+    unsigned int mid = std::max(a.n + 1, b.n + 1) / 2;
 
     BigInt a1(a, 0, mid);
-    BigInt a2(a, a1.n, a.n - a1.n);
+    BigInt a2(a, a1.n, mid);
     BigInt b1(b, 0, mid);
-    BigInt b2(b, b1.n, b.n - b1.n);
+    BigInt b2(b, b1.n, mid);
 
     BigInt r1((*this), 0, 2 * mid);
     BigInt r2((*this), mid, n - mid);
-    BigInt r3((*this), +2 * mid, 2 * mid);
+    BigInt r3((*this), 2 * mid, 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
-    //BigInt buf2(buff, buf1.n, mid);
-    //BigInt buf3(buff, buf1.n + buf2.n, buff.n - buf1.n - buf2.n);
+    BigInt buf2(buff, buf1.n, a1.n);
+    BigInt buf3(buff, buf1.n + buf2.n, b1.n);
     BigInt buf4(buff, buf1.n, buff.n - buf1.n);
 
-    //buf2 = a1;
-    //buf2 -= a2;
-    //buf3 = b2;
-    //buf3 -= b1;
+    buf2 = a1;
+    buf2 -= a2;
+    buf3 = b2;
+    buf3 -= b1;
 
     r1.karatsuba(a1, b1, buf1);
     r3.karatsuba(a2, b2, buf1);
 
-    a1 -= a2;
-    b1.negate();
-    b1 += b2;
+    a1 = buf2;
+    b1 = buf3;
 
-    //a1 = buf2;
-    //a2 = buf3;
-
-    bool signa = a1.abs();
-    bool signb = b1.abs();
+    bool tempSign = a1.abs() ^ b1.abs();
 
     buff = r1;
     buff += r3;
@@ -461,22 +461,10 @@ void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 
     buf1.karatsuba(a1, b1, buf4);
 
-    if (signa)
+    if (tempSign)
     {
-        a1.negate();
-    }
-    if (signb)
-    {
-        b1.negate();
-    }
-
-    b1 -= b2;
-    b1.negate();
-    a1 += a2;
-
-    if (signa ^ signb)
-    {
-        buf1.negate();
+        r2-=buf1;
+        return;
     }
     r2 += buf1;
 }
@@ -485,8 +473,8 @@ BigInt BigInt::operator*(const BigInt &_b) const
     BigInt result, a, b, buff1;
     a = *this;
     b = _b;
-    result.reallocate(n + b.n);
-    buff1.reallocate(result.n);
+    result.reallocate(n);
+    buff1.reallocate(a.n+b.n);
     bool sign = a.abs() ^ b.abs();
     result.karatsuba(a, b, buff1);
     if (sign)
@@ -523,4 +511,28 @@ BigInt &BigInt::operator*=(uint32_t b)
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
     return *this;
+}
+BigInt BigInt::computeInverse() const // Newton-Raphson
+{
+    unsigned int k = 96;
+    BigInt a(42);
+    BigInt buff;
+    BigInt res;
+    buff.reallocate(n+k/32);
+    res.reallocate(n+k/32);
+    a.reallocate(n+k/32);
+    for(int i =0;i<200;i++)
+    {
+        buff = (*this);
+        buff = buff *a;
+        res = 2;
+        res = (res<<k);
+        res -= buff;
+        res = res*a;
+        res = (res>>k);
+        a = res;
+        //std::cout<<"a: "<<a.toBin()<<std::endl;
+        //std::cout<<"mul: "<<((a*(*this))).toBin()<<std::endl;
+    }
+    return a;
 }
