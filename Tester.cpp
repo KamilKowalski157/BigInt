@@ -1,6 +1,24 @@
 #include "Tester.h"
 #include "BigInt.h"
 #include <iostream>
+#include <cstring>
+
+int toInt(const char *str)
+{
+    int res = 0;
+    bool sign = ((*str) == '-');
+    while (*str != '\0')
+    {
+        res *= 10;
+        if (*str < '0' || *str > '9')
+        {
+            return 0;
+        } // Invalid characters
+        res += (*str - '0');
+        str++;
+    }
+    return (1 - 2 * sign) * res;
+}
 
 void Tester::startTimer()
 {
@@ -11,323 +29,205 @@ double Tester::stopTimer()
     auto timer2 = std::chrono::high_resolution_clock::now();
     return std::chrono::duration_cast<std::chrono::nanoseconds>(timer2 - timer1).count();
 }
-unsigned int Tester::testAddition(unsigned int n)
+
+unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
 {
     unsigned int failures = 0;
-    std::default_random_engine engine;
-    auto dist = std::uniform_int_distribution(0, 999999);
     startTimer();
-    for (int i = 0; i < n; i++)
-    {
-        auto x = dist(engine) - 500000;
-        auto y = dist(engine) - 500000;
-        BigInt a((uint32_t)x);
-        BigInt b((uint32_t)y);
-        a -= b;
-        BigInt c(x - y);
-        if (a != c)
-        {
-            failures++;
-            std::cout << "Invalid result. For a =\t" << x << "\tand b =\t" << y << "\tgives\t" << a << " instead of\t" << c << std::endl;
-        }
-        else
-        {
-            //std::cout<<"Passed test for: a =\t"<<x<<"\tand b =\t"<<y<<"\twith result =\t"<<c<<std::endl;
-        }
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-}
-unsigned int Tester::testSubtraction(unsigned int n)
-{
-    unsigned int failures = 0;
-    std::default_random_engine engine;
-    auto dist = std::uniform_int_distribution(0, 9999999);
-    startTimer();
-    for (int i = 0; i < n; i++)
-    {
-        auto x = dist(engine) - 5000000;
-        auto y = dist(engine) - 5000000;
-        BigInt a((uint32_t)x + y);
-        a -= y;
-        BigInt c((uint32_t)x);
-        if (a != c)
-        {
-            failures++;
-            std::cout << "Invalid result. For a =\t" << x + y << "\tand b =\t" << y << "\tgives\t" << c << " instead of\t" << (x) << std::endl;
-        }
-        else
-        {
-            //std::cout << "Passed test for: a =\t" << x + y << "\tand b =\t" << y << "\twith result =\t" << c << std::endl;
-        }
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-}
-unsigned int Tester::testAddSubtr(unsigned int n)
-{
-    unsigned int failures = 0;
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine engine(seed);
-    auto dist = std::uniform_int_distribution(0, 999999);
-
-    std::cout << "generated on seed: " << seed << std::endl;
-
-    startTimer();
-    BigInt a[3];
-    for (int i = 0; i < n; i++)
-    {
-        generate(a[0],1024,engine);
-        generate(a[1],1024,engine);
-        a[2] = a[0];
-        a[0] += a[1];
-        a[0] -= a[1];
-        if (a[0] != a[2])
-        {
-            std::cout << "Trial failed for:\n"
-                      << (a[0] - a[1]) << " \n"
-                      << a[2] << "\n"
-                      << a[1] << std::endl; //<< " and difference equal:\t" << ((a[0] - a[1]) + a[1]) << std::endl;
-            failures++;
-        }
-        else
-        {
-            //std::cout << "Trial passed for:\t" << a[0] << " and\t" << a[1] << " with sum of:\t" << (a[0] + a[1]) << std::endl;
-        }
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-} /*
-unsigned int Tester::testMultiplication(unsigned int n)
-{
-    unsigned int failures = 0;
-    std::default_random_engine engine;
-    auto dist = std::uniform_int_distribution(0, 99999);
-    startTimer();
-    for (int i = 0; i < n; i++)
-    {
-        auto x = dist(engine) - 50000;
-        auto y = dist(engine) - 50000;
-        BigInt a((uint32_t)x);
-        BigInt b((uint32_t)y);
-        BigInt c((uint32_t)x * y);
-        if ((a * b) != c)
-        {
-            failures++;
-            std::cout << "Invalid result. For a =\t" << x << "\tand b =\t" << y << "\tgives\t" << c << " instead of\t" << (x * y) << std::endl;
-        }
-        else
-        {
-            std::cout << "Passed test for: a =\t" << x << "\tand b =\t" << y << "\twith result =\t" << c << std::endl;
-        }
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-}*/
-unsigned int Tester::testShift(unsigned int n) // Manual
-{
-    unsigned int failures = 0;
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine engine(seed);
-    auto dist = std::uniform_int_distribution(0, 9999999);
-    auto dist2 = std::uniform_int_distribution(0, 9999999);
-
-    std::cout << "generated on seed: " << seed << std::endl;
-
-    startTimer();
-    for (int i = 0; i < n; i++)
-    {
-        int x = dist(engine);
-        int y = dist2(engine);
-        uint32_t *ptr = new uint32_t[2];
-        ptr[0] = x;
-        ptr[1] = y;
-        BigInt a;
-        for (int i = 0; i < 20; i++)
-        {
-            std::cout << (a << (-i)).toBin() << std::endl;
-            std::cin.get();
-        }
-        std::cout << "fin" << std::endl;
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-}
-unsigned int Tester::testDivision(unsigned int n)
-{
-    unsigned int failures = 0;
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine engine(seed);
-    auto dist = std::uniform_int_distribution(0, 999999);
-    auto dist2 = std::uniform_int_distribution(0, 9999);
-
-    std::cout << "generated on seed: " << seed << std::endl;
-
-    startTimer();
-    for (int i = 0; i < n; i++)
-    {
-        int x = dist(engine);
-        int y = dist2(engine);
-        if (y == 0)
-        {
-            continue;
-        }
-        //x = 721013;
-        //y = 3469;
-        BigInt a((uint32_t)x);
-        a.reallocate(20);
-        BigInt b((uint32_t)1);
-        b.reallocate(20);
-        for (int j = 0; j < 10; j++)
-        {
-            int h = dist(engine) + 1;
-            a = a * h;
-            b = b * h;
-        }
-        //std::cout << a.toBin() << std::endl;
-        //std::cout << b.toBin() << std::endl;
-        //std::cin.get();
-        BigInt c = (a / b);
-
-        if (c != x)
-        {
-            std::cout << "Trial failed for:\t" << x << " and\t" << y << " with result equal:\t" << c << " and answer equal:\t" << x << std::endl;
-            failures++;
-        }
-        else
-        {
-            //std::cout<<"Trial passed for:\t"<<a<<" and\t"<<y<<" with result of:\t"<<b<<" or:\t"<<(x<<y)<<std::endl;
-        }
-    }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
-    return failures;
-}
-unsigned int Tester::testMultiplication(unsigned int n)
-{
-    unsigned int failures = 0;
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //seed = 1609182799086625063;
-    std::default_random_engine engine(seed);
-    auto dist = std::uniform_int_distribution(0, 99999999);
-    auto dist2 = std::uniform_int_distribution(0, 99999999);
-
-    std::cout << "generated on seed: " << seed << std::endl;
 
     BigInt a;
     BigInt b;
     BigInt c;
-    a.reallocate(1024);
-    b.reallocate(1024);
-    startTimer();
+
     for (int i = 0; i < n; i++)
     {
-        std::cout<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,256,engine);
-        generate(b,256,engine);
-        c = a * b;
-
-        if (c / b != a)
+        generate(a, size);
+        generate(b, size);
+        c = a - b;
+        if ((c + b) != a)
         {
-            std::cout << "A: " << a << "\t in binary:\t" << a.toBin() << std::endl;
-            std::cout << "B: " << b << "\t in binary:\t" << b.toBin() << std::endl;
-            std::cout << "C: " << c << "\t in binary:\t" << c.toBin() << std::endl;
-            //(a / b);
-            std::cout << i << " Trial failed for:\t" << a << " and\t" << c << " with result equal:\t" << (c / b) << std::endl;
             failures++;
-            BigInt d = a*b;
-            std::cout<<(d/b)<<std::endl;
+            std::cout << "case: " << i << " test failed for a:" << a << "\n and b: " << b << std::endl;
         }
-        else
-        {
-            //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;
-            //std::cout << i << " Trial passed for:\t" << a << std::endl;
-        }
-        //std::cout<<a.toBin()<<"\n\n"<<b.toBin()<<"\n\n"<<c.toBin()<<std::endl;*/
     }
-    std::cout<<std::endl;
     double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << (n-failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    std::cout << failures << " / " << n << " trials failed" << std::endl;
     return failures;
 }
+
+unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
+{
+    unsigned int failures = 0;
+    startTimer();
+
+    std::uniform_int_distribution dist(0, (int)size - 1);
+
+    BigInt a;
+    BigInt b;
+    a.reallocate(size * 2);
+    unsigned int shift;
+
+    for (int i = 0; i < n; i++)
+    {
+        shift = dist(engine);
+        generate(a, size);
+
+        b = a;
+
+        a = (a << shift);
+        a = (a >> shift);
+
+        if (a != b)
+        {
+            std::cout << "case: " << i << " test failed for a:" << b.toBin() << "\n and shift: " << shift << std::endl;
+            std::cout<<"a: "<<a.toBin()<<std::endl;
+            failures++;
+        }
+    }
+    double time = stopTimer();
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    return failures;
+}
+unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
+{
+    unsigned int failures = 0;
+    startTimer();
+
+    BigInt a;
+    BigInt b;
+    BigInt c;
+    c.reallocate(size * 2);
+    BigInt d;
+    d.reallocate(size * 2);
+
+    for (int i = 0; i < n; i++)
+    {
+        generate(a, size);
+        generate(b, size);
+
+        c = b;
+        c = c * a;
+        d = c / b;
+        if (d != a)
+        {
+            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            std::cout << "c: " << c << std::endl;
+            std::cout << "d: " << d << std::endl;
+            failures++;
+        }
+    }
+    double time = stopTimer();
+    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    return failures;
+}
+
 void Tester::manual()
 {
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine engine(seed);
-    std::cout<<"seed: "<<seed<<std::endl;
+    std::cout << "seed: " << seed << std::endl;
     BigInt k;
     k.reallocate(4);
     //generate(k,4,engine);
     k.digits[1] = 38145;
-    std::cout<<k.toBin()<<std::endl;
-    k.computeInverse();
+    std::cout << k.toBin() << std::endl;
+    k.computeInverse(3);
     //BigInt y(a.digits + 2, a.n - 2);
     //y += 10;
     //std::cout << a << std::endl;
 }
-void Tester::generate(BigInt & a,int size, std::default_random_engine & engine)
+void Tester::generate(BigInt &a, int size)
 {
     a.reallocate(size);
-    auto dist = std::uniform_int_distribution(0,1);
-    for(int j = 0;j<size;j++)
+    auto dist = std::uniform_int_distribution(0, 1);
+    for (int j = 0; j < size; j++)
     {
-        for(int i = 0;i<32;i++)
+        for (int i = 0; i < 32; i++)
         {
             a.digits[j] += dist(engine);
-            a.digits[j] = (a.digits[j]<<1);
+            a.digits[j] = (a.digits[j] << 1);
         }
     }
 }
-unsigned int Tester::testInversion(unsigned int n)
+unsigned int Tester::testInversion(unsigned int n, unsigned int size)
 {
-    unsigned int failures =0;
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    seed = 1610574162010838348;
-    std::default_random_engine engine(seed);
-    std::cout<<"generated on seed: "<<seed<<std::endl;
+    unsigned int failures = 0;
+
     BigInt a;
     BigInt b;
     startTimer();
-    for(int i = 0;i<n;i++)
+    for (int i = 0; i < n; i++)
     {
-        //std::cout<<"trial "<<i<<"/"<<n<<"\r"<<std::flush;
-        generate(a,128,engine);
-        generate(b,128,engine);
-        if(!(b>a)){i--;continue;}
-        BigInt y = (b.computeInverse());
-        ((y*a)>>(129*32));
-        /*if(a/b!=((y*a)>>(129*32)))
+        std::cout << "trial " << i << "/" << n << "\r" << std::flush;
+        generate(a, 128);
+        generate(b, 128);
+        if (!(b > a))
+        {
+            i--;
+            continue;
+        }
+        BigInt y = (b.computeInverse(129));
+        //((y*a)>>(129*32));
+        if (a / b != ((y * a) >> (129 * 32)))
         {
             failures++;
-            std::cout<<"Test failed for a: "<<a<<std::endl;
-            std::cout<<"b: "<<b<<std::endl;
-            std::cout<<"inverse: "<<y<<std::endl;
-            std::cout<<"a/b : "<<(a/b)<<std::endl;
-            std::cout<<"a x 1/b: "<<a*y<<std::endl;
-            std::cout<<"1: "<<b*y<<std::endl;
+            std::cout << "Test failed for a: " << a << std::endl;
+            std::cout << "b: " << b << std::endl;
+            std::cout << "inverse: " << y << std::endl;
+            std::cout << "a/b : " << (a / b) << std::endl;
+            std::cout << "a x 1/b: " << a * y << std::endl;
+            std::cout << "1: " << b * y << std::endl;
             std::cin.get();
         }
         else
         {
             //std::cout<<(a/b)<<std::endl;
-        }*/
-        
+        }
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
     double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
-    std::cout << (n-failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
+}
+void Tester::pickYourFighter(char **argv, int argc)
+{
+    if (argc < 1 || argc > 3)
+    {
+        std::cerr << "error: invalid argument count" << std::endl;
+        return;
+    }
+    unsigned int n = 1000;
+    unsigned int size = 128;
+    if (argc > 1)
+    {
+        n = toInt(argv[1]);
+    }
+    if (argc > 2)
+    {
+        size = toInt(argv[2]);
+    }
+
+    std::cout << "executing " << argv[0] << " test for n = " << n << " and size = " << size << std::endl;
+
+    if (!strcmp(argv[0], "a&s"))
+    {
+        testAddSubtr(n, size);
+    }
+    else if (!strcmp(argv[0], "m&d"))
+    {
+        testMulDiv(n, size); // Can be indepedent of division ???
+    }
+    else if (!strcmp(argv[0], "shf"))
+    {
+        testShift(n, size);
+    }
+    else
+    {
+        std::cerr << "error: invalid argument" << std::endl;
+    }
+    return;
 }

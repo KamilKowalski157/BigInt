@@ -2,13 +2,9 @@
 #include "BigInt.h"
 #include "Tester.h"
 
-int main(int argc, char ** argv)
+int main(int argc,char ** argv)
 {
     Tester tester;
-    //tester.testAddSubtr(9999);
-    //tester.testDivision(999);
-    //tester.testMultiplication(99);
-    tester.testInversion();
-    //tester.manual();
+    tester.pickYourFighter(argv+1,argc-1);
     return 0;
 }

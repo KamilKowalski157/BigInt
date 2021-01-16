@@ -34,7 +34,7 @@ class BigInt
 
     void shiftLeft();  //Fast implementation for single shift
     void shiftRight(); // Fast implementation for single shift
-    BigInt computeInverse() const;
+    BigInt computeInverse(unsigned int k) const;
 
     void deallocate();
 

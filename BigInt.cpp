@@ -514,9 +514,9 @@ BigInt &BigInt::operator*=(uint32_t b)
     }
     return *this;
 }
-BigInt BigInt::computeInverse() const // Newton-Raphson
+BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
-    unsigned int k = (n+1)*32;
+    k*=32;
     BigInt a(1);
     BigInt buff;
     BigInt res;
@@ -524,7 +524,7 @@ BigInt BigInt::computeInverse() const // Newton-Raphson
     res.reallocate(n*2);
     a.reallocate(n*2);
     a = (a<<(k-n*32));
-    while(true)
+    for(int i = 0;i<k*2;++i)
     {
         buff = (*this);
         buff = buff *a;

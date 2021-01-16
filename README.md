@@ -17,4 +17,4 @@ performance and validity of particular operations. As of now range of operations
 - Implement double dabble algorithm to convert to base 10
 - Implement modulo
 - Add template with digit length as argument
-
+- Create python script to plot performance complexity for different operations
