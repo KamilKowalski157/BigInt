@@ -14,6 +14,7 @@ performance and validity of particular operations. As of now range of operations
  ## Division
  Simple non restoring division, alternatively Newton-Raphson division using karatsuba as a base operation
 # TODO
+- Add Doxygen documentation
 - Implement double dabble algorithm to convert to base 10
 - Implement modulo
 - Add template with digit length as argument
