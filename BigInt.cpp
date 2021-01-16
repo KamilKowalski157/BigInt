@@ -190,10 +190,11 @@ bool BigInt::operator<(const BigInt &b) const
     }
     for (int i = std::max(n - 1, b.n - 1); i >= 0; --i)
     {
-        if ((*this)[i] < b[i])
+        if ((*this)[i] == b[i])
         {
-            return !mySign;
+            continue;
         }
+        return (!mySign)^((*this)[i]<b[i]);
     }
     return false;
 }
@@ -207,10 +208,11 @@ bool BigInt::operator>(const BigInt &b) const
     }
     for (int i = n - 1; i >= 0; --i)
     {
-        if ((*this)[i] > b[i])
+        if ((*this)[i] == b[i])
         {
-            return !mySign;
+            continue;
         }
+        return (!mySign)^((*this)[i]>b[i]);
     }
     return false;
 }
@@ -514,14 +516,15 @@ BigInt &BigInt::operator*=(uint32_t b)
 }
 BigInt BigInt::computeInverse() const // Newton-Raphson
 {
-    unsigned int k = 96;
-    BigInt a(42);
+    unsigned int k = (n+1)*32;
+    BigInt a(1);
     BigInt buff;
     BigInt res;
-    buff.reallocate(n+k/32);
-    res.reallocate(n+k/32);
-    a.reallocate(n+k/32);
-    for(int i =0;i<200;i++)
+    buff.reallocate(n*2);
+    res.reallocate(n*2);
+    a.reallocate(n*2);
+    a = (a<<(k-n*32));
+    while(true)
     {
         buff = (*this);
         buff = buff *a;
@@ -530,9 +533,8 @@ BigInt BigInt::computeInverse() const // Newton-Raphson
         res -= buff;
         res = res*a;
         res = (res>>k);
+        if(res==a){break;}
         a = res;
-        //std::cout<<"a: "<<a.toBin()<<std::endl;
-        //std::cout<<"mul: "<<((a*(*this))).toBin()<<std::endl;
     }
     return a;
 }
