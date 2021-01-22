@@ -52,7 +52,7 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
     }
     double time = stopTimer();
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << failures << " / " << n << " trials failed" << std::endl;
+    std::cout << (n-failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 

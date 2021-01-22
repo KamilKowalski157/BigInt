@@ -16,6 +16,7 @@ class Tester;
 class BigInt
 {
     static uint32_t endianMask;
+    const static uint64_t bigEndianMask = (1 << (sizeof(uint64_t) * 8 - 1));
 
     mutable uint64_t buffer;
 
@@ -37,7 +38,9 @@ class BigInt
 
     void deallocate();
 
-    void karatsuba(const BigInt &a,const BigInt &b, BigInt &buff1);
+    void mulAdd(const BigInt &a, uint64_t b);
+
+    void karatsuba(const BigInt &a, const BigInt &b, BigInt &buff1);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
@@ -49,7 +52,7 @@ class BigInt
                                                                        owner(false),
                                                                        sign(temp.sign)*/
     BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.n, pos)),
-                                                                       n(std::min((long)_size,temp.n - (digits - temp.digits))),
+                                                                       n(std::min((long)_size, temp.n - (digits - temp.digits))),
                                                                        owner(false),
                                                                        sign(temp.sign)
     {

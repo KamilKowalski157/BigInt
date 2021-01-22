@@ -407,6 +407,25 @@ BigInt BigInt::operator/(const BigInt &b) const
     result -= one[buffer.sign] * buffer.sign;
     return result;
 }
+
+void BigInt::mulAdd(const BigInt &a, uint64_t b)
+{
+    buffer = 0;
+    a.buffer = 0;
+    uint64_t buff = b;
+    buff += ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
+    for (int i = 0; i < n; i++)
+    {
+        buffer += digits[i];
+        a.buffer += a[i];
+        a.buffer *= buff;
+        buffer += a.buffer;
+        digits[i] = buffer;
+
+        buffer = (buffer >> (sizeof(uint32_t) * 8));
+        a.buffer = (a.buffer >> (sizeof(uint32_t) * 8));
+    }
+}
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
 {
     if ((a.n != 0) * (b.n != 0) * (n != 0) == 0)
@@ -418,12 +437,15 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         if (b.n == 1)
         {
-            (*this) = a;
-            (*this) *= b.digits[0];
+            buffer = b.digits[0];
+            buffer *= (1 - (2 * b.sign & 1));
+            mulAdd(a, buffer);
             return;
         }
-        (*this) = b;
-        (*this) *= a.digits[0];
+
+        buffer = a.digits[0];
+        buffer *= (1 - 2 * (a.sign & 1));
+        mulAdd(b, buffer);
         return;
     }
 
@@ -436,20 +458,17 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 
     BigInt r1((*this), 0, 2 * mid);
     BigInt r2((*this), mid, n - mid);
-    BigInt r3((*this), 2 * mid, 2 * mid);
+    BigInt r3((*this), 2 * mid, n - 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
     BigInt buf4(buff, buf1.n, buff.n - buf1.n);
 
-    r1.karatsuba(a1, b1, buf1);
+    karatsuba(a1, b1, buf1);
     r3.karatsuba(a2, b2, buf1);
 
     a1 -= a2;
     b1 -= b2;
     b1.negate();
-
-    bool aSign = a1.abs();
-    bool bSign = b1.abs();
 
     buff = r1;
     buff += r3;
@@ -457,23 +476,9 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 
     buf1.karatsuba(a1, b1, buf4);
 
-    if (aSign)
-    {
-        a1.negate();
-    }
-    if (!bSign)
-    {
-        b1.negate();
-    }
-
+    b1.negate();
     b1 += b2;
     a1 += a2;
-
-    if (aSign ^ bSign)
-    {
-        r2 -= buf1;
-        return;
-    }
 
     r2 += buf1;
 }
@@ -505,20 +510,24 @@ BigInt BigInt::operator*(int32_t b) const
 }
 BigInt &BigInt::operator*=(const int32_t b)
 {
-    if(b<0)
+    if (b < 0)
     {
-        std::cout<<""<<std::endl;
+        std::cout << "" << std::endl;
     }
     buffer = ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
-    uint64_t cst = ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * ((b < 0)+(sign&1));
+    uint64_t cst = ((~(uint64_t)0) << (sizeof(uint32_t) * 8));
+    uint64_t buf = b;
+
+    buf += cst * (b < 0);
     for (int i = 0; i < n; ++i)
     {
-        buffer += cst;
+        buffer += (*this)[i + 1];
         buffer += (uint64_t)digits[i] * (uint64_t)b;
+        buffer *= buf;
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    sign = ((sign + (buffer&1))&1);
+    sign = ((sign + (buffer & 1)) & 1);
 
     return *this;
 }
