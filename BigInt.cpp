@@ -320,8 +320,8 @@ BigInt BigInt::operator<<(int shift) const
     int minorOffset = (shift - majorOffset * (sizeof(uint32_t) * 8));
     for (int i = n - 1; i >= 0; --i)
     {
-        buffer =((*this)[i-majorOffset-1]>>(sizeof(uint32_t)*8-minorOffset));
-        buffer += ((*this)[i-majorOffset]<<(minorOffset))*(minorOffset!=0);
+        buffer = ((*this)[i - majorOffset - 1] >> (sizeof(uint32_t) * 8 - minorOffset)) * (minorOffset != 0);
+        buffer += ((*this)[i - majorOffset] << (minorOffset));
         digits[i] = buffer;
     }
     return (*this);
@@ -338,10 +338,10 @@ BigInt BigInt::operator>>(int shift) const
     }
     int majorOffset = shift / (sizeof(uint32_t) * 8);
     int minorOffset = (shift - majorOffset * (sizeof(uint32_t) * 8));
-    for (int i = 0;i<n;++i)
+    for (int i = 0; i < n; ++i)
     {
-        buffer = ((*this)[i+majorOffset]>>(minorOffset))*(minorOffset!=0);
-        buffer +=((*this)[i+1+majorOffset]<<(sizeof(uint32_t)*8-minorOffset));
+        buffer = ((*this)[i + majorOffset] >> (minorOffset));
+        buffer += ((*this)[i + 1 + majorOffset] << (sizeof(uint32_t) * 8 - minorOffset)) * (minorOffset != 0);
         digits[i] = buffer;
     }
     return (*this);
@@ -407,7 +407,7 @@ BigInt BigInt::operator/(const BigInt &b) const
     result -= one[buffer.sign] * buffer.sign;
     return result;
 }
-void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
+void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
 {
     if ((a.n != 0) * (b.n != 0) * (n != 0) == 0)
     {
@@ -439,22 +439,17 @@ void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
     BigInt r3((*this), 2 * mid, 2 * mid);
 
     BigInt buf1(buff, 0, 2 * mid);
-    BigInt buf2(buff, buf1.n, a1.n);
-    BigInt buf3(buff, buf1.n + buf2.n, b1.n);
     BigInt buf4(buff, buf1.n, buff.n - buf1.n);
-
-    buf2 = a1;
-    buf2 -= a2;
-    buf3 = b2;
-    buf3 -= b1;
 
     r1.karatsuba(a1, b1, buf1);
     r3.karatsuba(a2, b2, buf1);
 
-    a1 = buf2;
-    b1 = buf3;
+    a1 -= a2;
+    b1 -= b2;
+    b1.negate();
 
-    bool tempSign = a1.abs() ^ b1.abs();
+    bool aSign = a1.abs();
+    bool bSign = b1.abs();
 
     buff = r1;
     buff += r3;
@@ -462,26 +457,32 @@ void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 
     buf1.karatsuba(a1, b1, buf4);
 
-    if (tempSign)
+    if (aSign)
+    {
+        a1.negate();
+    }
+    if (!bSign)
+    {
+        b1.negate();
+    }
+
+    b1 += b2;
+    a1 += a2;
+
+    if (aSign ^ bSign)
     {
         r2 -= buf1;
         return;
     }
+
     r2 += buf1;
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
-    BigInt result, a, b, buff1;
-    a = *this;
-    b = _b;
+    BigInt result, buff1;
     result.reallocate(n);
-    buff1.reallocate(a.n + b.n);
-    bool sign = a.abs() ^ b.abs();
-    result.karatsuba(a, b, buff1);
-    if (sign)
-    {
-        result.negate();
-    }
+    buff1.reallocate(n + _b.n);
+    result.karatsuba(*this, _b, buff1);
     return result;
 }
 BigInt BigInt::operator*(int32_t b) const
@@ -502,17 +503,26 @@ BigInt BigInt::operator*(int32_t b) const
     }
     return result;
 }
-BigInt &BigInt::operator*=(uint32_t b)
+BigInt &BigInt::operator*=(const int32_t b)
 {
-    buffer = 0;
+    if(b<0)
+    {
+        std::cout<<""<<std::endl;
+    }
+    buffer = ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
+    uint64_t cst = ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * ((b < 0)+(sign&1));
     for (int i = 0; i < n; ++i)
     {
+        buffer += cst;
         buffer += (uint64_t)digits[i] * (uint64_t)b;
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
+    sign = ((sign + (buffer&1))&1);
+
     return *this;
 }
+//TODO: Use karatsuba directly
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
     k *= 32;

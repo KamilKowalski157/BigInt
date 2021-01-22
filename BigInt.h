@@ -1,6 +1,5 @@
 #ifndef BIGINT
 #define BIGINT
-#define __DEBUG__
 
 #include <stdint.h>
 #include <string>
@@ -38,7 +37,7 @@ class BigInt
 
     void deallocate();
 
-    void karatsuba(BigInt &a, BigInt &b, BigInt &buff1);
+    void karatsuba(const BigInt &a,const BigInt &b, BigInt &buff1);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
@@ -79,7 +78,7 @@ public:
     BigInt &operator+=(const BigInt &b);
     BigInt &operator-=(const BigInt &b);
     BigInt &operator*=(const BigInt &b);
-    BigInt &operator*=(uint32_t b);
+    BigInt &operator*=(const int32_t b);
     BigInt &operator/=(const BigInt &b);
 
     BigInt operator<<(int shift) const;
