@@ -58,9 +58,9 @@ BigInt::~BigInt()
 
 BigInt &BigInt::operator=(BigInt &&b)
 {
-    if(b.n<n)
+    if (b.n < n)
     {
-        (*this) = (BigInt&)b;
+        (*this) = (BigInt &)b;
         return *this;
     }
     deallocate();
@@ -194,7 +194,7 @@ bool BigInt::operator<(const BigInt &b) const
         {
             continue;
         }
-        return (!mySign)^((*this)[i]<b[i]);
+        return (!mySign) ^ ((*this)[i] < b[i]);
     }
     return false;
 }
@@ -212,7 +212,7 @@ bool BigInt::operator>(const BigInt &b) const
         {
             continue;
         }
-        return (!mySign)^((*this)[i]>b[i]);
+        return (!mySign) ^ ((*this)[i] > b[i]);
     }
     return false;
 }
@@ -306,46 +306,45 @@ BigInt BigInt::operator-(const BigInt &b) const
     return r1;
 }
 
-BigInt BigInt::operator<<(int shift) const // Optimization is very much possible
+BigInt BigInt::operator<<(int shift) const
 {
-    if (shift == 0)
+    if (shift <= 0)
     {
-        return *this;
+        if (shift == 0)
+        {
+            return *this;
+        }
+        return ((*this) >> (-shift));
     }
-    shift = -shift;
-    BigInt result;
-    result.reallocate(n);
-    int majorOffset = (shift * (1 - (shift < 0) * 2) / (sizeof(uint32_t) * 8)) * (1 - (shift < 0) * 2) - (shift < 0);
-    int minorOffset = shift - majorOffset * sizeof(uint32_t) * 8;
-    uint64_t buf;
-    for (int i = 0, j = majorOffset; i < result.n; i++, j++)
+    int majorOffset = shift / (sizeof(uint32_t) * 8);
+    int minorOffset = (shift - majorOffset * (sizeof(uint32_t) * 8));
+    for (int i = n - 1; i >= 0; --i)
     {
-        buf = (*this)[j + 1];
-        buf = (buf << (sizeof(uint32_t) * 8));
-        buf += (*this)[j];
-        result.digits[i] = (buf >> (minorOffset));
+        buffer =((*this)[i-majorOffset-1]>>(sizeof(uint32_t)*8-minorOffset));
+        buffer += ((*this)[i-majorOffset]<<(minorOffset))*(minorOffset!=0);
+        digits[i] = buffer;
     }
-    return result;
+    return (*this);
 }
 BigInt BigInt::operator>>(int shift) const
 {
-    if (shift == 0)
+    if (shift <= 0)
     {
-        return *this;
+        if (shift == 0)
+        {
+            return *this;
+        }
+        return ((*this) << (-shift));
     }
-    BigInt result;
-    result.reallocate(n);
-    int majorOffset = (shift * (1 - (shift < 0) * 2) / (sizeof(uint32_t) * 8)) * (1 - (shift < 0) * 2) - (shift < 0);
-    int minorOffset = shift - majorOffset * sizeof(uint32_t) * 8;
-    uint64_t buf;
-    for (int i = 0, j = majorOffset; i < result.n; i++, j++)
+    int majorOffset = shift / (sizeof(uint32_t) * 8);
+    int minorOffset = (shift - majorOffset * (sizeof(uint32_t) * 8));
+    for (int i = 0;i<n;++i)
     {
-        buf = (*this)[j + 1];
-        buf = (buf << (sizeof(uint32_t) * 8));
-        buf += (*this)[j];
-        result.digits[i] = (buf << (minorOffset));
+        buffer = ((*this)[i+majorOffset]>>(minorOffset))*(minorOffset!=0);
+        buffer +=((*this)[i+1+majorOffset]<<(sizeof(uint32_t)*8-minorOffset));
+        digits[i] = buffer;
     }
-    return result;
+    return (*this);
 }
 BigInt &BigInt::operator+=(const BigInt &b)
 {
@@ -410,7 +409,7 @@ BigInt BigInt::operator/(const BigInt &b) const
 }
 void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 {
-    if ((a.n!=0) * (b.n!=0) * (n!=0) == 0)
+    if ((a.n != 0) * (b.n != 0) * (n != 0) == 0)
     {
         this->clear();
         return;
@@ -465,7 +464,7 @@ void BigInt::karatsuba(BigInt &a, BigInt &b, BigInt &buff)
 
     if (tempSign)
     {
-        r2-=buf1;
+        r2 -= buf1;
         return;
     }
     r2 += buf1;
@@ -476,7 +475,7 @@ BigInt BigInt::operator*(const BigInt &_b) const
     a = *this;
     b = _b;
     result.reallocate(n);
-    buff1.reallocate(a.n+b.n);
+    buff1.reallocate(a.n + b.n);
     bool sign = a.abs() ^ b.abs();
     result.karatsuba(a, b, buff1);
     if (sign)
@@ -516,24 +515,27 @@ BigInt &BigInt::operator*=(uint32_t b)
 }
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
-    k*=32;
+    k *= 32;
     BigInt a(1);
     BigInt buff;
     BigInt res;
-    buff.reallocate(n*2);
-    res.reallocate(n*2);
-    a.reallocate(n*2);
-    a = (a<<(k-n*32));
-    for(int i = 0;i<k*2;++i)
+    buff.reallocate(n * 2);
+    res.reallocate(n * 2);
+    a.reallocate(n * 2);
+    a = (a << (k - n * 32));
+    for (int i = 0; i < k * 2; ++i)
     {
         buff = (*this);
-        buff = buff *a;
+        buff = buff * a;
         res = 2;
-        res = (res<<k);
+        res = (res << k);
         res -= buff;
-        res = res*a;
-        res = (res>>k);
-        if(res==a){break;}
+        res = res * a;
+        res = (res >> k);
+        if (res == a)
+        {
+            break;
+        }
         a = res;
     }
     return a;
