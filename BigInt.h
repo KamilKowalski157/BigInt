@@ -16,7 +16,7 @@ class Tester;
 class BigInt
 {
     static uint32_t endianMask;
-    const static uint64_t bigEndianMask = (1 << (sizeof(uint64_t) * 8 - 1));
+    const static uint64_t bigEndianMask = ((uint64_t)1 << (sizeof(uint64_t) * 8 - 1));
 
     mutable uint64_t buffer;
 
