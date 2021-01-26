@@ -1,6 +1,8 @@
 #ifndef BIGINT
 #define BIGINT
 
+#define __DEBUG__
+
 #include <stdint.h>
 #include <string>
 #include <cstring>

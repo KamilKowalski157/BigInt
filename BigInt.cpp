@@ -78,17 +78,64 @@ BigInt &BigInt::operator=(const BigInt &b)
     sign = b.sign;
     return *this;
 }
-std::ostream &operator<<(std::ostream &stream, const BigInt &b)
+std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
 {
-    BigInt buff(b);
-    stream << buff.sign << " . ";
-    if (buff.sign)
+    BigInt b = _b;
+    b.abs();
+    int size = ((b.n * 1.204) + 1.2039); //rounding, 1.204 = log_10(16)
+    uint32_t *tab = new uint32_t[size];
+    memset(tab, 0, size * sizeof(uint32_t));
+    b.buffer = 0;
+
+    for (int i = b.n - 1; i >= 0; --i)
     {
-        //buff.negate();
+        for (int j = sizeof(uint32_t) * 8 - 1; j >= 0; --j)
+        {
+            for (int k = 0; k < size; ++k)
+            {
+                for (int l = 0, base = 1; l < 8; ++l, base = (base << 4))
+                {
+                    if (((tab[k] >> (l * 4)) % 16) > 4)
+                    {
+                        tab[k] += (3 * base);
+                    }
+                }
+            }
+            b.buffer = 0;
+            for (int k = 0; k < size; ++k)
+            {
+                b.buffer += (((uint64_t)tab[k]) * 2);
+                tab[k] = b.buffer;
+                b.buffer = (b.buffer >> (sizeof(uint32_t) * 8));
+            }
+            tab[0] += ((b[i] & (1 << (j))) != 0);
+        }
     }
-    for (int i = 0; i < buff.n; i++)
+    int i, j;
+    for (i = size - 1; i >= 0; --i)
     {
-        stream << buff.digits[b.n - 1 - i] << "\t";
+        for (j = 7; j >= 0; --j)
+        {
+            if (((tab[i] >> (j * 4)) % 16) != 0)
+            {
+                break;
+            }
+        }
+        if (((tab[i] >> (j * 4)) % 16) != 0)
+        {
+            break;
+        }
+    }
+    if(_b.sign)
+    {
+        stream<<"-";
+    }
+    for (; i >= 0; --i, j = 7)
+    {
+        for (; j >= 0; --j)
+        {
+            stream << ((tab[i] >> (j * 4)) % 16);
+        }
     }
     return stream;
 }
@@ -411,19 +458,19 @@ BigInt BigInt::operator/(const BigInt &b) const
 void BigInt::mulAdd(const BigInt &a, uint64_t b)
 {
     buffer = 0;
-    a.buffer = 0;
-    uint64_t buff = b;
-    buff += ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
+    a.buffer = ((~(uint64_t)0) << (sizeof(uint32_t) * 8));
+    //uint64_t buff = b;
+    //buff += ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
     for (int i = 0; i < n; i++)
     {
         buffer += digits[i];
         a.buffer += a[i];
-        a.buffer *= buff;
+        a.buffer *= b;
         buffer += a.buffer;
         digits[i] = buffer;
 
         buffer = (buffer >> (sizeof(uint32_t) * 8));
-        a.buffer = (a.buffer >> (sizeof(uint32_t) * 8));
+        a.buffer = (((~(uint64_t)0) << (sizeof(uint32_t) * 8)) + 1) * a.sign;
     }
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
@@ -437,6 +484,10 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         if (b.n == 1)
         {
+            if (a.sign || b.sign)
+            {
+                std::cout << "";
+            }
             buffer = b.digits[0];
             buffer *= (1 - (2 * b.sign & 1));
             mulAdd(a, buffer);

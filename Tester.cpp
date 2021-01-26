@@ -52,7 +52,7 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
     }
     double time = stopTimer();
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n-failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 
@@ -81,7 +81,7 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
         if (a != b)
         {
             std::cout << "case: " << i << " test failed for a:" << b.toBin() << "\n and shift: " << shift << std::endl;
-            std::cout<<"a: "<<a.toBin()<<std::endl;
+            std::cout << "a: " << a.toBin() << std::endl;
             failures++;
         }
     }
@@ -126,18 +126,10 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
 void Tester::manual()
 {
-    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine engine(seed);
-    std::cout << "seed: " << seed << std::endl;
-    BigInt k;
-    k.reallocate(4);
-    //generate(k,4,engine);
-    k.digits[1] = 38145;
-    std::cout << k.toBin() << std::endl;
-    k.computeInverse(3);
-    //BigInt y(a.digits + 2, a.n - 2);
-    //y += 10;
-    //std::cout << a << std::endl;
+    BigInt y;
+    generate(y,512);
+    std::cout<<"y_2: "<<y.toBin()<<std::endl;
+    std::cout<<"y_10: "<<y<<std::endl;
 }
 void Tester::generate(BigInt &a, int size)
 {
@@ -224,6 +216,10 @@ void Tester::pickYourFighter(char **argv, int argc)
     else if (!strcmp(argv[0], "shf"))
     {
         testShift(n, size);
+    }
+    else if (!strcmp(argv[0], "man"))
+    {
+        manual();
     }
     else
     {

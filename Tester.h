@@ -23,7 +23,7 @@ public:
     void pickYourFighter(char ** args,int argc);
     void manual();
 
-    Tester() : engine(0){}//engine(std::chrono::system_clock::now().time_since_epoch().count()){}
+    Tester() : engine(std::chrono::system_clock::now().time_since_epoch().count()){}
 };
 
 #endif /*TESTER*/
