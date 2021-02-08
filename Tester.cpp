@@ -101,7 +101,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     c.reallocate(size * 2);
     BigInt d;
     d.reallocate(size * 2);
-    auto dist = std::uniform_int_distribution(0U,size-1);
+    auto dist = std::uniform_int_distribution(1U,size-1);
     unsigned int size1;
     for (int i = 0; i < n; i++)
     {
@@ -110,7 +110,6 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         generate(b, size1);
         c = b;
         c = c * a;
-        std::cout<<a<<" x "<<b<<" = "<<c<<std::endl;
         d = c / b;
         if (d != a)
         {
@@ -119,6 +118,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             std::cout << "d: " << d << std::endl;
             failures++;
         }
+        std::cout<<a<<" x "<<b<<" = "<<c<<std::endl;
     }
     double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
