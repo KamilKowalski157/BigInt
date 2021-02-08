@@ -100,17 +100,19 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     BigInt c;
     c.reallocate(size * 2);
     BigInt d;
+    BigInt f;
     d.reallocate(size * 2);
-    auto dist = std::uniform_int_distribution(1U,size-1);
+    auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
     for (int i = 0; i < n; i++)
     {
-        size1 = dist(engine);
-        generate(a, size-size1);
-        generate(b, size1);
+        //size1 = dist(engine);
+        generate(a, size);
+        generate(b, size);
         c = b;
         c = c * a;
         d = c / b;
+
         if (d != a)
         {
             std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
@@ -118,7 +120,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             std::cout << "d: " << d << std::endl;
             failures++;
         }
-        std::cout<<a<<" x "<<b<<" = "<<c<<std::endl;
+        std::cout << a << " x " << b << " = " << c << std::endl;
     }
     double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
@@ -129,9 +131,9 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 void Tester::manual()
 {
     BigInt y;
-    generate(y,512);
-    std::cout<<"y_2: "<<y.toBin()<<std::endl;
-    std::cout<<"y_10: "<<y<<std::endl;
+    generate(y, 512);
+    std::cout << "y_2: " << y.toBin() << std::endl;
+    std::cout << "y_10: " << y << std::endl;
 }
 void Tester::generate(BigInt &a, int size)
 {
@@ -152,33 +154,21 @@ unsigned int Tester::testInversion(unsigned int n, unsigned int size)
 
     BigInt a;
     BigInt b;
+    BigInt c;
+    BigInt d;
     startTimer();
     for (int i = 0; i < n; i++)
     {
-        std::cout << "trial " << i << "/" << n << "\r" << std::flush;
-        generate(a, 128);
-        generate(b, 128);
-        if (!(b > a))
+        generate(a, size);
+        generate(b, size / 2);
+        c = a / b;
+        d = a % b;
+        if (c * b + d != a)
         {
-            i--;
-            continue;
-        }
-        BigInt y = (b.computeInverse(129));
-        //((y*a)>>(129*32));
-        if (a / b != ((y * a) >> (129 * 32)))
-        {
+            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            std::cout << "c: " << c << std::endl;
+            std::cout << "d: " << d << std::endl;
             failures++;
-            std::cout << "Test failed for a: " << a << std::endl;
-            std::cout << "b: " << b << std::endl;
-            std::cout << "inverse: " << y << std::endl;
-            std::cout << "a/b : " << (a / b) << std::endl;
-            std::cout << "a x 1/b: " << a * y << std::endl;
-            std::cout << "1: " << b * y << std::endl;
-            std::cin.get();
-        }
-        else
-        {
-            //std::cout<<(a/b)<<std::endl;
         }
     }
     std::cout << std::endl;
@@ -219,9 +209,9 @@ void Tester::pickYourFighter(char **argv, int argc)
     {
         testShift(n, size);
     }
-    else if (!strcmp(argv[0], "man"))
+    else if (!strcmp(argv[0], "mod"))
     {
-        manual();
+        testInversion(n,size);
     }
     else
     {

@@ -134,11 +134,16 @@ std::string BigInt::toDec() const
     {
         res += "-";
     }
+    char digit = sign;
+    char carry = 0;
     for (; i >= 0; --i, j = 7)
     {
         for (; j >= 0; --j)
         {
-            res += ('0' + ((tab[i] >> (j * 4)) % 16));
+            digit += ((tab[i] >> (j * 4)) % 16);
+            carry = digit/10;
+            res += ('0'+digit);
+            digit = carry;
         }
     }
     delete[] tab;
@@ -463,6 +468,39 @@ BigInt BigInt::operator/(const BigInt &b) const
     }
     result -= one[buffer.sign] * buffer.sign;
     return result;
+}
+BigInt BigInt::operator%(const BigInt &b) const
+{
+    if (b == 0)
+    {
+        throw std::exception();
+    }
+    BigInt buffer = *this;
+    BigInt divisor = b;
+    divisor.reallocate(n);
+    bool sign = divisor.abs() ^ buffer.abs();
+    int s1 = buffer.getActualSize();
+    int s2 = divisor.getActualSize();
+    divisor = (divisor << (s1 - s2));
+    BigInt one[2]{1, -1};
+    while (s1 >= s2)
+    {
+        if (buffer.sign)
+        {
+            buffer += divisor;
+        }
+        else
+        {
+            buffer -= divisor;
+        }
+        divisor.shiftRight();
+        s1--;
+    }
+    if(buffer.sign)
+    {
+        buffer += b;
+    }
+    return buffer;
 }
 
 void BigInt::mulAdd(const BigInt &a, uint64_t b)
