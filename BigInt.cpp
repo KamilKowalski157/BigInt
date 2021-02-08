@@ -475,20 +475,6 @@ void BigInt::mulAdd(const BigInt &a, uint64_t b)
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    sign = (buffer)&1;
-}
-void BigInt::mulSub(const BigInt &a, uint64_t b)
-{
-    buffer = 0;
-    a.buffer = (uint32_t)~b;
-    a.buffer += 1;
-    for (int i = 0; i < n; i++)
-    {
-        buffer += (a.buffer * a[i]);
-        digits[i] = ((~buffer)+(i==0));
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    sign = !((buffer)&1);
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
 {
@@ -501,17 +487,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         if (b.n == 1)
         {
-            if (b.sign)
-            {
-                mulSub(a, b.digits[0]);
-                return;
-            }
             mulAdd(a, b.digits[0]);
-            return;
-        }
-        if (a.sign)
-        {
-            mulSub(b, a.digits[0]);
             return;
         }
         mulAdd(b, a.digits[0]);
@@ -536,9 +512,20 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     karatsuba(a1, b1, buf1);
     r3.karatsuba(a2, b2, buf1);
 
+    bool sign_a = false;
+    bool sign_b = true;
     a1 -= a2;
+    if (a1.sign)
+    {
+        sign_a = true;
+        a1.negate();
+    }
     b1 -= b2;
-    b1.negate();
+    if (b1.sign)
+    {
+        sign_b = false;
+        b1.negate();
+    }
 
     buff = r1;
     buff += r3;
@@ -546,10 +533,21 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 
     buf1.karatsuba(a1, b1, buf4);
 
-    b1.negate();
+    if (sign_a)
+    {
+        a1.negate();
+    }
+    if (!sign_b)
+    {
+        b1.negate();
+    }
     b1 += b2;
     a1 += a2;
-
+    if (sign_a ^ sign_b)
+    {
+        r2 -= buf1;
+        return;
+    }
     r2 += buf1;
 }
 BigInt BigInt::operator*(const BigInt &_b) const

@@ -101,15 +101,16 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     c.reallocate(size * 2);
     BigInt d;
     d.reallocate(size * 2);
-
+    auto dist = std::uniform_int_distribution(0U,size-1);
+    unsigned int size1;
     for (int i = 0; i < n; i++)
     {
-        generate(a, size);
-        generate(b, size);
-        if(i!=1){continue;}
-
+        size1 = dist(engine);
+        generate(a, size-size1);
+        generate(b, size1);
         c = b;
         c = c * a;
+        std::cout<<a<<" x "<<b<<" = "<<c<<std::endl;
         d = c / b;
         if (d != a)
         {
