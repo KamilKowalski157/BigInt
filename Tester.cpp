@@ -106,6 +106,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     {
         generate(a, size);
         generate(b, size);
+        if(i!=1){continue;}
 
         c = b;
         c = c * a;

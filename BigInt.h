@@ -41,6 +41,7 @@ class BigInt
     void deallocate();
 
     void mulAdd(const BigInt &a, uint64_t b);
+    void mulSub(const BigInt &a, uint64_t b);
 
     void karatsuba(const BigInt &a, const BigInt &b, BigInt &buff1);
 

@@ -78,16 +78,15 @@ BigInt &BigInt::operator=(const BigInt &b)
     sign = b.sign;
     return *this;
 }
-std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
+std::string BigInt::toDec() const
 {
-    BigInt b = _b;
-    b.abs();
-    int size = ((b.n * 1.204) + 1.2039); //rounding, 1.204 = log_10(16)
+    std::string res;
+    int size = ((n * 1.204) + 1); //ceiling, 1.204 = log_10(16)
     uint32_t *tab = new uint32_t[size];
     memset(tab, 0, size * sizeof(uint32_t));
-    b.buffer = 0;
+    buffer = 0;
 
-    for (int i = b.n - 1; i >= 0; --i)
+    for (int i = n - 1; i >= 0; --i)
     {
         for (int j = sizeof(uint32_t) * 8 - 1; j >= 0; --j)
         {
@@ -101,14 +100,19 @@ std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
                     }
                 }
             }
-            b.buffer = 0;
+            buffer = 0;
             for (int k = 0; k < size; ++k)
             {
-                b.buffer += (((uint64_t)tab[k]) * 2);
-                tab[k] = b.buffer;
-                b.buffer = (b.buffer >> (sizeof(uint32_t) * 8));
+                buffer += (((uint64_t)tab[k]) * 2);
+                tab[k] = buffer;
+                buffer = (buffer >> (sizeof(uint32_t) * 8));
             }
-            tab[0] += ((b[i] & (1 << (j))) != 0);
+            if (sign)
+            {
+                tab[0] += (((~(*this)[i]) & (1 << (j))) != 0);
+                continue;
+            }
+            tab[0] += (((*this)[i] & (1 << (j))) != 0);
         }
     }
     int i, j;
@@ -126,17 +130,23 @@ std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
             break;
         }
     }
-    if(_b.sign)
+    if (sign)
     {
-        stream<<"-";
+        res += "-";
     }
     for (; i >= 0; --i, j = 7)
     {
         for (; j >= 0; --j)
         {
-            stream << ((tab[i] >> (j * 4)) % 16);
+            res += ('0' + ((tab[i] >> (j * 4)) % 16));
         }
     }
+    delete[] tab;
+    return res;
+}
+std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
+{
+    stream << _b.toDec();
     return stream;
 }
 
@@ -458,20 +468,27 @@ BigInt BigInt::operator/(const BigInt &b) const
 void BigInt::mulAdd(const BigInt &a, uint64_t b)
 {
     buffer = 0;
-    a.buffer = ((~(uint64_t)0) << (sizeof(uint32_t) * 8));
-    //uint64_t buff = b;
-    //buff += ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
+    a.buffer = b;
     for (int i = 0; i < n; i++)
     {
-        buffer += digits[i];
-        a.buffer += a[i];
-        a.buffer *= b;
-        buffer += a.buffer;
+        buffer += (a.buffer * a[i]);
         digits[i] = buffer;
-
         buffer = (buffer >> (sizeof(uint32_t) * 8));
-        a.buffer = (((~(uint64_t)0) << (sizeof(uint32_t) * 8)) + 1) * a.sign;
     }
+    sign = (buffer)&1;
+}
+void BigInt::mulSub(const BigInt &a, uint64_t b)
+{
+    buffer = 0;
+    a.buffer = (uint32_t)~b;
+    a.buffer += 1;
+    for (int i = 0; i < n; i++)
+    {
+        buffer += (a.buffer * a[i]);
+        digits[i] = ((~buffer)+(i==0));
+        buffer = (buffer >> (sizeof(uint32_t) * 8));
+    }
+    sign = !((buffer)&1);
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
 {
@@ -484,23 +501,25 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         if (b.n == 1)
         {
-            if (a.sign || b.sign)
+            if (b.sign)
             {
-                std::cout << "";
+                mulSub(a, b.digits[0]);
+                return;
             }
-            buffer = b.digits[0];
-            buffer *= (1 - (2 * b.sign & 1));
-            mulAdd(a, buffer);
+            mulAdd(a, b.digits[0]);
             return;
         }
-
-        buffer = a.digits[0];
-        buffer *= (1 - 2 * (a.sign & 1));
-        mulAdd(b, buffer);
+        if (a.sign)
+        {
+            mulSub(b, a.digits[0]);
+            return;
+        }
+        mulAdd(b, a.digits[0]);
         return;
     }
 
     unsigned int mid = std::max(a.n + 1, b.n + 1) / 2;
+    // I have guarantee that a1.n>=a2.n and b1.n>=b2.n
 
     BigInt a1(a, 0, mid);
     BigInt a2(a, a1.n, mid);
@@ -558,29 +577,6 @@ BigInt BigInt::operator*(int32_t b) const
         result.negate();
     }
     return result;
-}
-BigInt &BigInt::operator*=(const int32_t b)
-{
-    if (b < 0)
-    {
-        std::cout << "" << std::endl;
-    }
-    buffer = ((~(uint64_t)0) << (sizeof(uint32_t) * 8)) * (b < 0);
-    uint64_t cst = ((~(uint64_t)0) << (sizeof(uint32_t) * 8));
-    uint64_t buf = b;
-
-    buf += cst * (b < 0);
-    for (int i = 0; i < n; ++i)
-    {
-        buffer += (*this)[i + 1];
-        buffer += (uint64_t)digits[i] * (uint64_t)b;
-        buffer *= buf;
-        digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    sign = ((sign + (buffer & 1)) & 1);
-
-    return *this;
 }
 //TODO: Use karatsuba directly
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
