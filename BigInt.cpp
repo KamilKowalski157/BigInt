@@ -482,37 +482,11 @@ BigInt &BigInt::operator-=(const BigInt &b)
 
 BigInt BigInt::operator/(const BigInt &b) const
 {
-    if (b == 0)
-    {
-        throw std::exception();
-    }
-    BigInt buffer = *this;
-    BigInt divisor = b;
-    divisor.reallocate(n);
-    bool sign = divisor.abs() ^ buffer.abs();
-    int s1 = buffer.getActualSize();
-    int s2 = divisor.getActualSize();
-    BigInt result;
-    result.reallocate(std::max(buffer.n, divisor.n));
-    divisor = (divisor << (s1 - s2));
-    BigInt one[2]{1, -1};
-    while (s1 >= s2)
-    {
-        result.shiftLeft();
-        result += one[buffer.sign];
-        if (buffer.sign)
-        {
-            buffer += divisor;
-        }
-        else
-        {
-            buffer -= divisor;
-        }
-        divisor.shiftRight();
-        s1--;
-    }
-    result -= one[buffer.sign] * buffer.sign;
-    return result;
+    if(b==0){throw std::exception();}
+    BigInt a;
+    a.reallocate(2*n);
+    a = *this;
+    return (((a)*b.computeInverse(n))>>(n*32))+BigInt(1);
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -662,22 +636,26 @@ BigInt BigInt::operator*(int32_t b) const
 //TODO: Use karatsuba directly
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
-    k *= 32;
+    buffer = 1;
+    buffer = (buffer<<(sizeof(uint64_t)*8-1));//good idea- continue
     BigInt a(1);
+    BigInt kbuff;
     BigInt buff;
     BigInt res;
-    buff.reallocate(n * 2);
-    res.reallocate(n * 2);
-    a.reallocate(n * 2);
+    kbuff.reallocate(2*k);
+    buff.reallocate(k+n+1);
+    res.reallocate(2*k+1);
+    a.reallocate(k+1);
+    k *= 32;
     a = (a << (k - n * 32));
-    for (int i = 0; i < k * 2; ++i)
+    for (int i = 0; i < k; ++i)
     {
         buff = (*this);
-        buff = buff * a;
+        buff.karatsuba(buff,a,kbuff);
         res = 2;
         res = (res << k);
         res -= buff;
-        res = res * a;
+        res.karatsuba(res,a,kbuff);
         res = (res >> k);
         if (res == a)
         {
