@@ -130,7 +130,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
 void Tester::manual()
 {
-    BigInt y("21374532453465467347563326532762137");
+    BigInt y("3543245163034827963180674381");
     std::cout<<y<<std::endl;
 }
 void Tester::generate(BigInt &a, int size)

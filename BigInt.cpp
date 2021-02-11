@@ -20,53 +20,48 @@ std::string var2Bin(const T &var)
 
 BigInt::BigInt(const std::string &str) : owner(true)
 {
-    int size = (str.size() /8) +1;
+    int size = (str.size() / 8) + 1;
     reallocate(size);
-    uint32_t *ptr = new uint32_t[size];
-    memset(ptr, 0, sizeof(uint32_t) * size);
+    uint32_t d_buff;
     for (int i = 0; i < size; i++)
     {
         for (int j = 0, k = i * 8; j < 8; j++, k++)
         {
-            ptr[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * ((str.size() - 1 - k) < str.size())) << (j * 4));
+            digits[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * ((str.size() - 1 - k) < str.size())) << (j * 4));
         }
     }
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < 32; j++)
         {
+            d_buff = (d_buff >> 1);
+            d_buff += (1 << (sizeof(uint32_t) * 8 - 1)) * (digits[i] & 1);
 
             buffer = 0;
-            for (int k = n - 1; k >= 0; k--)
+            for (int k = n; k >= i; k--)
             {
                 buffer += digits[k];
-                digits[k] = (buffer>>1);
+                digits[k] = (buffer >> 1);
                 buffer = (buffer << (sizeof(uint32_t) * 8));
             }
 
-            digits[n - 1] += (1 << (sizeof(uint32_t) * 8 - 1)) * (ptr[0] & 1);
-
-            buffer = 0;
-            for (int k = size - 1; k >= 0; k--)
-            {
-                buffer += ptr[k];
-                ptr[k] = (buffer>>1);
-                buffer = (buffer << (sizeof(uint32_t) * 8));
-            }
-
-            for (int k = 0; k < size; k++)
+            for (int k = i; k < n; k++)
             {
                 for (int l = 0, base = 1; l < 8; l++, base = (base << 4))
                 {
-                    if (ptr[k]&(base<<3))
+                    if (digits[k] & (base << 3))
                     {
-                        ptr[k] -= base * 3;
+                        digits[k] -= base * 3;
                     }
                 }
             }
         }
+        for (int j = n - 1; j > i; j--)
+        {
+            digits[j] = digits[j - 1];
+        }
+        digits[i] = d_buff;
     }
-    (*this) = (*this>>(n*32-size*32));
 }
 
 void BigInt::deallocate()
