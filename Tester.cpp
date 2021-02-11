@@ -130,10 +130,8 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
 void Tester::manual()
 {
-    BigInt y;
-    generate(y, 512);
-    std::cout << "y_2: " << y.toBin() << std::endl;
-    std::cout << "y_10: " << y << std::endl;
+    BigInt y("21374532453465467347563326532762137");
+    std::cout<<y<<std::endl;
 }
 void Tester::generate(BigInt &a, int size)
 {
@@ -211,7 +209,11 @@ void Tester::pickYourFighter(char **argv, int argc)
     }
     else if (!strcmp(argv[0], "mod"))
     {
-        testInversion(n,size);
+        testInversion(n, size);
+    }
+    else if (!strcmp(argv[0], "man"))
+    {
+        manual();
     }
     else
     {

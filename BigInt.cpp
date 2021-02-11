@@ -13,10 +13,60 @@ std::string var2Bin(const T &var)
         for (int j = 0; j < 8; j++)
         {
             result += ((((ptr[sizeof(T) - 1 - i] << j) & 128) / 128) + '0');
-            //result += " ";
         }
     }
     return result;
+}
+
+BigInt::BigInt(const std::string &str) : owner(true)
+{
+    int size = (str.size() /8) +1;
+    reallocate(size);
+    uint32_t *ptr = new uint32_t[size];
+    memset(ptr, 0, sizeof(uint32_t) * size);
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0, k = i * 8; j < 8; j++, k++)
+        {
+            ptr[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * ((str.size() - 1 - k) < str.size())) << (j * 4));
+        }
+    }
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < 32; j++)
+        {
+
+            buffer = 0;
+            for (int k = n - 1; k >= 0; k--)
+            {
+                buffer += digits[k];
+                digits[k] = (buffer>>1);
+                buffer = (buffer << (sizeof(uint32_t) * 8));
+            }
+
+            digits[n - 1] += (1 << (sizeof(uint32_t) * 8 - 1)) * (ptr[0] & 1);
+
+            buffer = 0;
+            for (int k = size - 1; k >= 0; k--)
+            {
+                buffer += ptr[k];
+                ptr[k] = (buffer>>1);
+                buffer = (buffer << (sizeof(uint32_t) * 8));
+            }
+
+            for (int k = 0; k < size; k++)
+            {
+                for (int l = 0, base = 1; l < 8; l++, base = (base << 4))
+                {
+                    if (ptr[k]&(base<<3))
+                    {
+                        ptr[k] -= base * 3;
+                    }
+                }
+            }
+        }
+    }
+    (*this) = (*this>>(n*32-size*32));
 }
 
 void BigInt::deallocate()
@@ -141,8 +191,8 @@ std::string BigInt::toDec() const
         for (; j >= 0; --j)
         {
             digit += ((tab[i] >> (j * 4)) % 16);
-            carry = digit/10;
-            res += ('0'+digit);
+            carry = digit / 10;
+            res += ('0' + digit);
             digit = carry;
         }
     }
@@ -496,7 +546,7 @@ BigInt BigInt::operator%(const BigInt &b) const
         divisor.shiftRight();
         s1--;
     }
-    if(buffer.sign)
+    if (buffer.sign)
     {
         buffer += b;
     }
