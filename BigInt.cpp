@@ -636,26 +636,32 @@ BigInt BigInt::operator*(int32_t b) const
 //TODO: Use karatsuba directly
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
+    //return 1;
     buffer = 1;
-    buffer = (buffer<<(sizeof(uint64_t)*8-1));//good idea- continue
+    buffer = (buffer<<(sizeof(uint32_t)*8));//good idea- continue
+    auto position = (getActualSize()+31)/32;
+    buffer/=digits[position-1];
     BigInt a(1);
     BigInt kbuff;
     BigInt buff;
     BigInt res;
-    kbuff.reallocate(2*k);
-    buff.reallocate(k+n+1);
-    res.reallocate(2*k+1);
-    a.reallocate(k+1);
+    kbuff.reallocate(4*k);
+    buff.reallocate(2*k);
+    res.reallocate(2*k);
+    a.reallocate(k);
+    a.digits[0] = buffer;
     k *= 32;
-    a = (a << (k - n * 32));
-    for (int i = 0; i < k; ++i)
+    a = (a << (k - (position)*32));
+    int i;
+    for (i = 0; i < k; ++i)
     {
-        buff = (*this);
-        buff.karatsuba(buff,a,kbuff);
+        res = (*this);
+        buff.karatsuba(res,a,kbuff);// source of problem
         res = 2;
-        res = (res << k);
+        res = (res << k); //Optimize!
         res -= buff;
-        res.karatsuba(res,a,kbuff);
+        buff = res;
+        res.karatsuba(buff,a,kbuff);
         res = (res >> k);
         if (res == a)
         {
@@ -663,5 +669,6 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
         }
         a = res;
     }
+    std::cout<<"iterations: "<<i<<std::endl;
     return a;
 }
