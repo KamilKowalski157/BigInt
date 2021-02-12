@@ -40,7 +40,7 @@ BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
             d_buff += (1 << (sizeof(uint32_t) * 8 - 1)) * (digits[i] & 1);
 
             buffer = 0;
-            for (int k = size; k >= i; k--)
+            for (int k = size-1; k >= i; k--)
             {
                 buffer += digits[k];
                 digits[k] = (buffer >> 1);
@@ -118,16 +118,16 @@ BigInt &BigInt::operator=(const BigInt &b)
 std::string BigInt::toDec() const
 {
     std::string res;
-    int size = ((size * 1.204) + 1); //ceiling, 1.204 = log_10(16)
-    uint32_t *tab = new uint32_t[size];
-    memset(tab, 0, size * sizeof(uint32_t));
+    int s_size = ((size * 1.204) + 1); //ceiling, 1.204 = log_10(16)
+    uint32_t *tab = new uint32_t[s_size];
+    memset(tab, 0, s_size * sizeof(uint32_t));
     buffer = 0;
 
     for (int i = size - 1; i >= 0; --i)
     {
         for (int j = sizeof(uint32_t) * 8 - 1; j >= 0; --j)
         {
-            for (int k = 0; k < size; ++k)
+            for (int k = 0; k < s_size; ++k)
             {
                 for (int l = 0, base = 1; l < 8; ++l, base = (base << 4))
                 {
@@ -138,7 +138,7 @@ std::string BigInt::toDec() const
                 }
             }
             buffer = 0;
-            for (int k = 0; k < size; ++k)
+            for (int k = 0; k < s_size; ++k)
             {
                 buffer += (((uint64_t)tab[k]) * 2);
                 tab[k] = buffer;
@@ -153,7 +153,7 @@ std::string BigInt::toDec() const
         }
     }
     int i, j;
-    for (i = size - 1; i >= 0; --i)
+    for (i = s_size - 1; i >= 0; --i)
     {
         for (j = 7; j >= 0; --j)
         {
@@ -527,8 +527,8 @@ BigInt BigInt::operator/(const BigInt &b) const
         throw std::exception();
     }
     BigInt a(2 * size);
-    a = *this;
-    return (((a)*b.computeInverse(size)) >> (size * 32)) + BigInt("1");
+    a = b;
+    return ((a*b.computeInverse(size)) >> (size * 32)) + BigInt("1");
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -696,8 +696,7 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
     {
         res = (*this);
         buff.karatsuba(res, a, kbuff); // source of problem
-        res.clear();
-        res.digits[0] = 2;
+        res = BigInt("2");
         res = (res << k); //Optimize!
         res -= buff;
         buff = res;

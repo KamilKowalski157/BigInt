@@ -109,16 +109,16 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         generate(b, size);
         c = b;
         c = c * a;
-        d = c / b;
+        /*d = (c / b);
 
-        /*if (d != a)
+        if (d != a)
         {
             std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
             std::cout << "c: " << c << std::endl;
             std::cout << "d: " << d << std::endl;
             failures++;
         }*/
-        //std::cout << a << " x " << b << " = " << c << std::endl;
+        std::cout << a << " x " << b << " = " << c << std::endl;
     }
     double time = stopTimer();
     std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
