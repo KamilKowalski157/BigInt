@@ -14,20 +14,21 @@
 //- Karatsuba multiplication with smart memory managemenet
 
 class Tester;
+class BigInt;
 
 class BigInt
 {
-    static uint32_t endianMask;
+    const static uint32_t endian32 = ((uint32_t)1 << (sizeof(uint32_t) * 8 -1));
+    
     const static uint64_t bigEndianMask = ((uint64_t)1 << (sizeof(uint64_t) * 8 - 1));
 
     mutable uint64_t buffer;
 
-    const bool owner;
     uint32_t *digits = nullptr;
-    unsigned int n = 0; //length of digits table
+    const uint32_t size = 0;
     bool sign = false;
 
-    bool isNegative() const { return (digits != nullptr && (digits[n - 1] & endianMask)); }
+    bool isNegative() const { return (digits != nullptr && (digits[size - 1] & endian32)); }
     void negate();
     bool abs();
     void clear();
@@ -54,41 +55,39 @@ class BigInt
                                                                        n(std::min((long)_size, digits - temp.digits)),
                                                                        owner(false),
                                                                        sign(temp.sign)*/
-    BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.n, pos)),
-                                                                       n(std::min((long)_size, temp.n - (digits - temp.digits))),
-                                                                       owner(false),
+    BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.size, pos)),
+                                                                       size(std::min((long)_size, temp.size - (digits - temp.digits))),
                                                                        sign(temp.sign)
     {
     }
 
 public:
-    BigInt(int a = 0) : owner(true)
-    {
-        reallocate(1);
-        digits[0] = a;
-        sign = isNegative();
-    }
+    BigInt(int a = 1) : size(allocate(a)){sign = 0;}
     BigInt(const std::string &decStr);
     BigInt(BigInt &&b);
     BigInt(const BigInt &b);
 
-    bool reallocate(unsigned int target_size); // should return pointer and size, and be const for maximum efficiency (minimizing new calls)
+    uint32_t allocate(unsigned int target_size);
 
     BigInt operator+(const BigInt &b) const;
     BigInt operator-(const BigInt &b) const;
-    BigInt operator*(const BigInt &b) const;
-    BigInt operator*(int32_t b) const;
-    BigInt operator/(const BigInt &b) const;
     BigInt operator%(const BigInt &b) const;
+    BigInt operator*(const BigInt &b) const;
+    BigInt operator/(const BigInt &b) const;
+    BigInt operator<<(int shift) const;
+    BigInt operator>>(int shift) const;
+    BigInt operator*(int32_t b) const;
 
     BigInt &operator+=(const BigInt &b);
     BigInt &operator-=(const BigInt &b);
+    BigInt operator%=(const BigInt &b);
     BigInt &operator*=(const BigInt &b);
-    BigInt &operator*=(const int32_t b);
     BigInt &operator/=(const BigInt &b);
+    BigInt& operator<<=(int shift);
+    BigInt& operator>>=(int shift);
+    BigInt &operator*=(const int32_t b);
 
-    BigInt operator<<(int shift) const;
-    BigInt operator>>(int shift) const;
+
 
     bool operator<(const BigInt &b) const;
     bool operator>(const BigInt &b) const;
@@ -100,7 +99,7 @@ public:
 
     uint32_t operator[](int i) const
     {
-        return digits[i * (i < n)] * (i >= 0) * (i < n) + (~0) * sign * (!(i < n));
+        return digits[i * (i < size)] * (i >= 0) * (i < size) + (~0) * sign * (!(i < size));
     }
     //BigInt & operator()(const BigInt & b);
 
