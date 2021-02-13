@@ -22,7 +22,7 @@ BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
     bool negative = false;
     if (str[0] == '-')
     {
-        negative = true;
+        negative = true; // TODO
     }
     uint32_t d_buff;
     for (int i = 0; i < size; i++)
@@ -527,8 +527,8 @@ BigInt BigInt::operator/(const BigInt &b) const
         throw std::exception();
     }
     BigInt a(2 * size);
-    a = b;
-    return ((a*b.computeInverse(size)) >> (size * 32)) + BigInt("1");
+    a = (*this);
+    return ((a*b.computeInverse(size-b.size+1)) >> ((size-b.size+1) * 32)) + BigInt("1");
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -654,7 +654,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 BigInt BigInt::operator*(const BigInt &_b) const
 {
     BigInt result(size);
-    BigInt buff1(size + _b.size);
+    BigInt buff1(2*size);
     result.karatsuba(*this, _b, buff1);
     return result;
 }
@@ -681,21 +681,28 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
     //return 1;
     buffer = 1;
-    buffer = (buffer << (sizeof(uint32_t) * 8)); //good idea- continue
+    buffer = (buffer << (sizeof(uint64_t) * 8-1)); //good idea- continue
     auto position = (getActualSize() + 31) / 32;
-    buffer /= digits[position - 1];
+    buffer /= (digits[position - 1]);
+    BigInt test(2);
+    test.digits[0] = buffer;
+    test.digits[1] = (buffer>>(sizeof(uint32_t)*8));
+    BigInt mBuff(16);
+    mBuff = (*this);
+
     BigInt a(k);
     BigInt kbuff(4 * k);
     BigInt buff(2 * k);
     BigInt res(2 * k);
     a.digits[0] = buffer;
+    a.digits[1] = (buffer>>(sizeof(uint32_t)*8));
     k *= 32;
     a = (a << (k - (position)*32));
     int i;
     for (i = 0; i < k; ++i)
     {
         res = (*this);
-        buff.karatsuba(res, a, kbuff); // source of problem
+        buff.karatsuba(res, a, kbuff);
         res = BigInt("2");
         res = (res << k); //Optimize!
         res -= buff;
