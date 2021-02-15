@@ -93,7 +93,6 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
 unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 {
     unsigned int failures = 0;
-    startTimer();
 
     BigInt a(size);
     BigInt b(size);
@@ -102,13 +101,15 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     BigInt f(size);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
+    double time;
     for (int i = 0; i < n; i++)
     {
         //size1 = dist(engine);
         generate(a, size);
         generate(b, size);
-        c = b;
-        c = c * a;
+        c = a;
+        startTimer();
+        c = c * b;
         d = (c / b);
 
         if (d != a)
@@ -118,18 +119,19 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             std::cout << "d: " << d << std::endl;
             failures++;
         }
-        //std::cout << a << " x " << b << " = " << c << std::endl;
+        time = stopTimer();
+        std::cout<<"a: "<<a<<" b: "<<b<<" c: "<<c<<" d(c/b): "<<d<<std::endl;
     }
-    double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
+    //time = stopTimer();
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 
 void Tester::manual()
 {
-    BigInt y("3543245163034827963180674381");
-    std::cout<<y<<std::endl;
+    BigInt y("");
+    std::cout << y << std::endl;
 }
 void Tester::generate(BigInt &a, int size)
 {
@@ -168,7 +170,7 @@ unsigned int Tester::testInversion(unsigned int n, unsigned int size)
     }
     std::cout << std::endl;
     double time = stopTimer();
-    std::cout << time << " milliseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " milliseconds per trial" << std::endl;
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }

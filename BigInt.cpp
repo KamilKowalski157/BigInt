@@ -29,7 +29,7 @@ BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
     {
         for (int j = 0, k = i * 8; j < 8; j++, k++)
         {
-            digits[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * ((str.size() - 1 - k) < str.size())) << (j * 4));
+            digits[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * (k < str.size())) << (j * 4));
         }
     }
     for (int i = 0; i < size; i++)
@@ -40,7 +40,7 @@ BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
             d_buff += (1 << (sizeof(uint32_t) * 8 - 1)) * (digits[i] & 1);
 
             buffer = 0;
-            for (int k = size-1; k >= i; k--)
+            for (int k = size - 1; k >= i; k--)
             {
                 buffer += digits[k];
                 digits[k] = (buffer >> 1);
@@ -86,7 +86,9 @@ BigInt::BigInt(const BigInt &b) : size(b.size), sign(b.sign)
         allocate(size);
         memcpy(digits, b.digits, sizeof(uint32_t) * size);
     }
-    else{}
+    else
+    {
+    }
 }
 
 BigInt::~BigInt()
@@ -109,7 +111,10 @@ BigInt &BigInt::operator=(BigInt &&b)
 
 BigInt &BigInt::operator=(const BigInt &b)
 {
-    if(digits==nullptr){allocate(size);}
+    if (digits == nullptr)
+    {
+        allocate(size);
+    }
     memset(this->digits, (~0) * b.sign, size * sizeof(uint32_t));
     memcpy(this->digits, b.digits, sizeof(uint32_t) * std::min(b.size, size));
     sign = b.sign;
@@ -118,7 +123,7 @@ BigInt &BigInt::operator=(const BigInt &b)
 std::string BigInt::toDec() const
 {
     std::string res;
-    int s_size = ((size * 1.204) + 1); //ceiling, 1.204 = log_10(16)
+    int s_size = ((size * 1.205) + 1); //ceiling, 1.204 = log_10(16)
     uint32_t *tab = new uint32_t[s_size];
     memset(tab, 0, s_size * sizeof(uint32_t));
     buffer = 0;
@@ -127,13 +132,13 @@ std::string BigInt::toDec() const
     {
         for (int j = sizeof(uint32_t) * 8 - 1; j >= 0; --j)
         {
-            for (int k = 0; k < s_size; ++k)
+            for (int k = 0; k < s_size; ++k) // Can be optimized ot run in half time
             {
-                for (int l = 0, base = 1; l < 8; ++l, base = (base << 4))
+                for (int l = 0, base = 3; l < 8; ++l, base = (base << 4))
                 {
-                    if (((tab[k] >> (l * 4)) % 16) > 4)
+                    if (((tab[k] >> (l * 4)) & 15) > 4)
                     {
-                        tab[k] += (3 * base);
+                        tab[k] += base;
                     }
                 }
             }
@@ -144,11 +149,11 @@ std::string BigInt::toDec() const
                 tab[k] = buffer;
                 buffer = (buffer >> (sizeof(uint32_t) * 8));
             }
-            if (sign)
+            /*if (sign)
             {
                 tab[0] += (((~(*this)[i]) & (1 << (j))) != 0);
                 continue;
-            }
+            }*/
             tab[0] += (((*this)[i] & (1 << (j))) != 0);
         }
     }
@@ -177,14 +182,12 @@ std::string BigInt::toDec() const
     {
         for (; j >= 0; --j)
         {
-            digit += ((tab[i] >> (j * 4)) % 16);
-            carry = digit / 10;
+            digit = ((tab[i] >> (j * 4)) % 16);
             res += ('0' + digit);
-            digit = carry;
         }
     }
     delete[] tab;
-    return res;
+    return "*" + res + "*";
 }
 std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
 {
@@ -209,9 +212,14 @@ uint32_t BigInt::allocate(unsigned int target_size)
     {
         return 0;
     }
-    digits = new uint32_t[target_size];
-    memset(digits, sign * 255, sizeof(uint32_t) * target_size);
-    return target_size;
+    uint32_t new_size = 1;
+    while (new_size < target_size)
+    {
+        new_size <<= 1;
+    }
+    digits = new uint32_t[new_size];
+    memset(digits, sign * 255, sizeof(uint32_t) * new_size);
+    return new_size;
 }
 
 void BigInt::clear()
@@ -528,7 +536,7 @@ BigInt BigInt::operator/(const BigInt &b) const
     }
     BigInt a(2 * size);
     a = (*this);
-    return ((a*b.computeInverse(size-b.size+1)) >> ((size-b.size+1) * 32)) + BigInt("1");
+    return ((a * b.computeInverse(size)) >> ((size)*32)) + BigInt("1");
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -605,11 +613,11 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     BigInt r2((*this), mid, size - mid);
     BigInt r3((*this), 2 * mid, size - 2 * mid);
 
-    BigInt buf1(buff, 0, 2 * mid);
+    BigInt buf1(buff, 0, a1.size + b1.size);
     BigInt buf4(buff, buf1.size, buff.size - buf1.size);
 
-    karatsuba(a1, b1, buf1);
-    r3.karatsuba(a2, b2, buf1);
+    karatsuba(a1, b1, buff);
+    r3.karatsuba(a2, b2, buff);
 
     bool sign_a = false;
     bool sign_b = true;
@@ -645,16 +653,16 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     if (sign_a ^ sign_b)
     {
         r2 -= buf1;
-        a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr;// clean up
+        a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr; // clean up
         return;
     }
     r2 += buf1;
-    a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr;// clean up
+    a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr; // clean up
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
     BigInt result(size);
-    BigInt buff1(2*size);
+    BigInt buff1(8 * size);
     result.karatsuba(*this, _b, buff1);
     return result;
 }
@@ -677,16 +685,17 @@ BigInt BigInt::operator*(int32_t b) const
     return result;
 }
 //TODO: Use karatsuba directly
+// Try using (x*2^k)
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
     //return 1;
     buffer = 1;
-    buffer = (buffer << (sizeof(uint64_t) * 8-1)); //good idea- continue
+    buffer = (buffer << (sizeof(uint64_t) * 8 - 1)); //good idea- continue
     auto position = (getActualSize() + 31) / 32;
     buffer /= (digits[position - 1]);
     BigInt test(2);
     test.digits[0] = buffer;
-    test.digits[1] = (buffer>>(sizeof(uint32_t)*8));
+    test.digits[1] = (buffer >> (sizeof(uint32_t) * 8));
     BigInt mBuff(16);
     mBuff = (*this);
 
@@ -695,10 +704,10 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
     BigInt buff(2 * k);
     BigInt res(2 * k);
     a.digits[0] = buffer;
-    a.digits[1] = (buffer>>(sizeof(uint32_t)*8));
-    k *= 32;
-    a = (a << (k - (position)*32));
+    a.digits[1] = (buffer >> (sizeof(uint32_t) * 8));
+    a = (a << ((k - position - 1) * 32 + 1));
     int i;
+    k *= 32;
     for (i = 0; i < k; ++i)
     {
         res = (*this);

@@ -16,6 +16,8 @@
 class Tester;
 class BigInt;
 
+//class BufferStack
+
 class BigInt
 {
     const static uint32_t endian32 = ((uint32_t)1 << (sizeof(uint32_t) * 8 -1));
@@ -24,9 +26,9 @@ class BigInt
 
     mutable uint64_t buffer;
 
+    bool sign = false;
     uint32_t *digits = nullptr;
     const uint32_t size = 0;
-    bool sign = false;
 
     bool isNegative() const { return (digits != nullptr && (digits[size - 1] & endian32)); }
     void negate();
