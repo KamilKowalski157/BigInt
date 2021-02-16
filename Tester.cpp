@@ -101,15 +101,19 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     BigInt f(size);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
-    double time;
+    double time = 0;
     for (int i = 0; i < n; i++)
     {
         //size1 = dist(engine);
         generate(a, size);
         generate(b, size);
+        //c.naiveMul(a,b);
         c = a;
         startTimer();
-        c = c * b;
+        c = c*b;
+        time += stopTimer();
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        //continue;
         d = (c / b);
 
         if (d != a)
@@ -118,11 +122,10 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             std::cout << "c: " << c << std::endl;
             std::cout << "d: " << d << std::endl;
             failures++;
+            continue;
         }
-        time = stopTimer();
-        std::cout<<"a: "<<a<<" b: "<<b<<" c: "<<c<<" d(c/b): "<<d<<std::endl;
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
     }
-    //time = stopTimer();
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;

@@ -20,8 +20,8 @@ class BigInt;
 
 class BigInt
 {
-    const static uint32_t endian32 = ((uint32_t)1 << (sizeof(uint32_t) * 8 -1));
-    
+    const static uint32_t endian32 = ((uint32_t)1 << (sizeof(uint32_t) * 8 - 1));
+
     const static uint64_t bigEndianMask = ((uint64_t)1 << (sizeof(uint64_t) * 8 - 1));
 
     mutable uint64_t buffer;
@@ -47,6 +47,7 @@ class BigInt
     void mulSub(const BigInt &a, uint64_t b);
 
     void karatsuba(const BigInt &a, const BigInt &b, BigInt &buff1);
+    void naiveMul(const BigInt &a, const BigInt &b);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
 #ifdef __DEBUG__
@@ -64,7 +65,7 @@ class BigInt
     }
 
 public:
-    BigInt(int a = 1) : size(allocate(a)){sign = 0;}
+    BigInt(int a = 1) : size(allocate(a)) { sign = 0; }
     BigInt(const std::string &decStr);
     BigInt(BigInt &&b);
     BigInt(const BigInt &b);
@@ -85,11 +86,9 @@ public:
     BigInt operator%=(const BigInt &b);
     BigInt &operator*=(const BigInt &b);
     BigInt &operator/=(const BigInt &b);
-    BigInt& operator<<=(int shift);
-    BigInt& operator>>=(int shift);
+    BigInt &operator<<=(int shift);
+    BigInt &operator>>=(int shift);
     BigInt &operator*=(const int32_t b);
-
-
 
     bool operator<(const BigInt &b) const;
     bool operator>(const BigInt &b) const;

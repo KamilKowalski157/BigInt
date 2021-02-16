@@ -583,21 +583,33 @@ void BigInt::mulAdd(const BigInt &a, uint64_t b)
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
 }
+void BigInt::naiveMul(const BigInt & a,const BigInt &b)
+{
+    for(int i = 0,j = 0;i<a.size;++i,j = 0)
+    {
+        buffer = 0;
+        for(;(j+i)<size&&j<b.size;++j)
+        {
+            a.buffer = a.digits[i];
+            a.buffer *= b.digits[j];
+            buffer += a.buffer;
+            buffer += digits[i+j];
+            digits[i+j] = buffer;
+            buffer = (buffer>>(sizeof(uint32_t)*8));
+        }
+        digits[i+j] = buffer;
+    }
+}
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
 {
     if ((a.size != 0) * (b.size != 0) * (size != 0) == 0)
     {
-        this->clear();
         return;
     }
-    if ((b.size - 1) * (a.size - 1) == 0)
+    if(size<256)
     {
-        if (b.size == 1)
-        {
-            mulAdd(a, b.digits[0]);
-            return;
-        }
-        mulAdd(b, a.digits[0]);
+        //clear();
+        naiveMul(a,b);
         return;
     }
 
@@ -616,7 +628,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     BigInt buf1(buff, 0, a1.size + b1.size);
     BigInt buf4(buff, buf1.size, buff.size - buf1.size);
 
-    karatsuba(a1, b1, buff);
+    r1.karatsuba(a1, b1, buff);
     r3.karatsuba(a2, b2, buff);
 
     bool sign_a = false;
@@ -638,6 +650,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     buff += r3;
     r2 += buff;
 
+    buf1.clear();
     buf1.karatsuba(a1, b1, buf4); // two versions optimization ?
 
     if (sign_a)
@@ -662,7 +675,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 BigInt BigInt::operator*(const BigInt &_b) const
 {
     BigInt result(size);
-    BigInt buff1(8 * size);
+    BigInt buff1(2* size);
     result.karatsuba(*this, _b, buff1);
     return result;
 }
@@ -696,8 +709,6 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
     BigInt test(2);
     test.digits[0] = buffer;
     test.digits[1] = (buffer >> (sizeof(uint32_t) * 8));
-    BigInt mBuff(16);
-    mBuff = (*this);
 
     BigInt a(k);
     BigInt kbuff(4 * k);
