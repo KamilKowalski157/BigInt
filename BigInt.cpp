@@ -495,19 +495,11 @@ BigInt &BigInt::operator>>=(int shift)
 
 BigInt &BigInt::operator+=(const BigInt &b)
 {
-    b.buffer = std::min(size, b.size);
     buffer = 0;
-    int i;
-    for (i = 0; i < b.buffer; i++)
+    for (int i = 0; i < size; i++)
     {
         buffer += digits[i];
-        buffer += b.digits[i];
-        digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    for (; i < size && buffer != 0; i++)
-    {
-        buffer += digits[i];
+        buffer += b[i];
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -699,18 +691,25 @@ BigInt BigInt::operator*(int32_t b) const
 
 void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
 {
+    int s1 = a.getActualSize();
+    int s2 = b.getActualSize();
     if (b == 0)
     {
         throw std::exception();
     }
-    BigInt buffer = *this;
-    BigInt divisor(size);
+    if (s1 < s2)
+    {
+        clear();
+        return;
+    }
+    BigInt buffer(a);
+    BigInt divisor(b.size + (s1 - s2 + 31) / 32);
     divisor = b;
     bool sign = divisor.abs() ^ buffer.abs();
-    int s1 = buffer.getActualSize();
-    int s2 = divisor.getActualSize();
     divisor = (divisor << (s1 - s2));
-    BigInt one[2]{1, -1};
+    BigInt one[2]{1, 1};
+    one[0].digits[0] = one[1].digits[0] = 1;
+    one[1].negate();
     while (s1 >= s2)
     {
         shiftLeft();
@@ -730,7 +729,6 @@ void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
 }
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
-    //return 1;
     buffer = 1;
     buffer = (buffer << (sizeof(uint64_t) * 8 - 1)); //good idea- continue
     auto position = (getActualSize() + 31) / 32;
