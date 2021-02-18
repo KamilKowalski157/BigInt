@@ -109,12 +109,13 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         generate(b, size);
         //c.naiveMul(a,b);
         c = a;
-        startTimer();
+        //c.naiveMul(a,b);
         c = c*b;
-        time += stopTimer();
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
+        startTimer();
         d = (c / b);
+        time += stopTimer();
 
         if (d != a)
         {
@@ -124,7 +125,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             failures++;
             continue;
         }
-        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        //]std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
     }
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;

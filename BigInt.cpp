@@ -583,21 +583,21 @@ void BigInt::mulAdd(const BigInt &a, uint64_t b)
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
 }
-void BigInt::naiveMul(const BigInt & a,const BigInt &b)
+void BigInt::naiveMul(const BigInt &a, const BigInt &b)
 {
-    for(int i = 0,j = 0;i<a.size;++i,j = 0)
+    for (int i = 0, j = 0; i < a.size; ++i, j = 0)
     {
         buffer = 0;
-        for(;(j+i)<size&&j<b.size;++j)
+        for (; (j + i) < size && j < b.size; ++j)
         {
             a.buffer = a.digits[i];
             a.buffer *= b.digits[j];
             buffer += a.buffer;
-            buffer += digits[i+j];
-            digits[i+j] = buffer;
-            buffer = (buffer>>(sizeof(uint32_t)*8));
+            buffer += digits[i + j];
+            digits[i + j] = buffer;
+            buffer = (buffer >> (sizeof(uint32_t) * 8));
         }
-        digits[i+j] = buffer;
+        digits[i + j] = buffer;
     }
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
@@ -606,10 +606,9 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         return;
     }
-    if(size<256)
+    if (size < 256)
     {
-        //clear();
-        naiveMul(a,b);
+        naiveMul(a, b);
         return;
     }
 
@@ -675,7 +674,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 BigInt BigInt::operator*(const BigInt &_b) const
 {
     BigInt result(size);
-    BigInt buff1(2* size);
+    BigInt buff1(2 * size);
     result.karatsuba(*this, _b, buff1);
     return result;
 }
@@ -697,8 +696,38 @@ BigInt BigInt::operator*(int32_t b) const
     }
     return result;
 }
-//TODO: Use karatsuba directly
-// Try using (x*2^k)
+
+void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
+{
+    if (b == 0)
+    {
+        throw std::exception();
+    }
+    BigInt buffer = *this;
+    BigInt divisor(size);
+    divisor = b;
+    bool sign = divisor.abs() ^ buffer.abs();
+    int s1 = buffer.getActualSize();
+    int s2 = divisor.getActualSize();
+    divisor = (divisor << (s1 - s2));
+    BigInt one[2]{1, -1};
+    while (s1 >= s2)
+    {
+        shiftLeft();
+        (*this) += one[buffer.sign];
+        if (buffer.sign)
+        {
+            buffer += divisor;
+        }
+        else
+        {
+            buffer -= divisor;
+        }
+        divisor.shiftRight();
+        s1--;
+    }
+    (*this) -= one[buffer.sign] * buffer.sign;
+}
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
     //return 1;
@@ -706,9 +735,8 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
     buffer = (buffer << (sizeof(uint64_t) * 8 - 1)); //good idea- continue
     auto position = (getActualSize() + 31) / 32;
     buffer /= (digits[position - 1]);
-    BigInt test(2);
-    test.digits[0] = buffer;
-    test.digits[1] = (buffer >> (sizeof(uint32_t) * 8));
+    BigInt mBuff(size + k);
+    mBuff = (*this);
 
     BigInt a(k);
     BigInt kbuff(4 * k);
@@ -722,11 +750,13 @@ BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
     for (i = 0; i < k; ++i)
     {
         res = (*this);
+        buff.clear();
         buff.karatsuba(res, a, kbuff);
         res = BigInt("2");
         res = (res << k); //Optimize!
         res -= buff;
         buff = res;
+        res.clear();
         res.karatsuba(buff, a, kbuff);
         res = (res >> k);
         if (res == a)
