@@ -269,7 +269,7 @@ unsigned int BigInt::getActualSize() const
             }
         }
     }
-    return -1;
+    return 0;
 }
 
 //
@@ -528,7 +528,9 @@ BigInt BigInt::operator/(const BigInt &b) const
     }
     BigInt a(2 * size);
     a = (*this);
-    return ((a * b.computeInverse(size)) >> ((size)*32)) + BigInt("1");
+    a = (a*b.computeInverse(size));
+    buffer = (a.digits[size-1]>>(sizeof(uint32_t)*8-1));
+    return (a>>(size*32)) + BigInt("1")*buffer;
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -729,40 +731,50 @@ void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
 }
 BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
 {
-    buffer = 1;
-    buffer = (buffer << (sizeof(uint64_t) * 8 - 1)); //good idea- continue
-    auto position = (getActualSize() + 31) / 32;
-    buffer /= (digits[position - 1]);
-    BigInt mBuff(size + k);
-    mBuff = (*this);
-
-    BigInt a(k);
+    if (*this == BigInt(1))
+    {
+        throw std::exception();
+    }
+    BigInt xn1(k);
     BigInt kbuff(4 * k);
     BigInt buff(2 * k);
-    BigInt res(2 * k);
-    a.digits[0] = buffer;
-    a.digits[1] = (buffer >> (sizeof(uint32_t) * 8));
-    a = (a << ((k - position - 1) * 32 + 1));
+    BigInt xn2(2 * k);
+    BigInt mBuff(2*k);
+    mBuff = (*this);
+    if (k >= 16 && size >= 8)
+    {
+        std::cout<<"computing approx"<<std::endl;
+        int position = (getActualSize()+31)/32;
+        BigInt a(xn2, 0, 16);
+        BigInt b(*this, size - 8, 8);
+        a.digits[a.size-1] = (1<<(sizeof(uint32_t)*8-1));
+        xn1.naiveDiv(a, b);
+        xn1 = (xn1 << ((k - position - 8) * 32 +1));
+        a.digits = b.digits = nullptr;
+        std::cout<<"approx computed"<<std::endl;
+    }
     int i;
-    k *= 32;
     for (i = 0; i < k; ++i)
     {
-        res = (*this);
+        std::cout<<i<<" iteration\r"<<std::flush; 
+        xn2 = (*this);
         buff.clear();
-        buff.karatsuba(res, a, kbuff);
-        res = BigInt("2");
-        res = (res << k); //Optimize!
-        res -= buff;
-        buff = res;
-        res.clear();
-        res.karatsuba(buff, a, kbuff);
-        res = (res >> k);
-        if (res == a)
+        buff.karatsuba(xn2, xn1, kbuff);
+
+        xn2.digits[k] = 2;
+
+        xn2 -= buff;
+        buff = xn2;
+        xn2.clear();
+        xn2.karatsuba(buff, xn1, kbuff);
+
+        xn2 = (xn2 >> (k * 32));
+        if(xn2==xn1)
         {
             break;
         }
-        a = res;
+        xn1 = xn2;
     }
-    std::cout << "iterations: " << i << " k " << k << " n: " << size << " a.n: " << a.size << " res.n: " << res.size << std::endl;
-    return a;
+    std::cout << "iterations: " << i << " k " << k << " n: " << size << " a.n: " << xn1.size << " res.n: " << xn2.size << std::endl;
+    return xn1;
 }
