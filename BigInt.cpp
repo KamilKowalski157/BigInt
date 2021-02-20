@@ -527,10 +527,12 @@ BigInt BigInt::operator/(const BigInt &b) const
         throw std::exception();
     }
     BigInt a(2 * size);
-    a = (*this);
-    a = (a*b.computeInverse(size));
-    buffer = (a.digits[size-1]>>(sizeof(uint32_t)*8-1));
-    return (a>>(size*32)) + BigInt("1")*buffer;
+    BigInt c(size);
+    c.computeInverse(b);
+    a = c;
+    a = a * (*this);
+    //buffer = (a.digits[size - 1] >> (sizeof(uint32_t) * 8 - 1));
+    return (a >> (size * 32)); // + BigInt("1") * buffer;
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -690,7 +692,7 @@ BigInt BigInt::operator*(int32_t b) const
     }
     return result;
 }
-
+// Non restoring division, sorta...
 void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
 {
     int s1 = a.getActualSize();
@@ -729,52 +731,66 @@ void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
     }
     (*this) -= one[buffer.sign] * buffer.sign;
 }
-BigInt BigInt::computeInverse(unsigned int k) const // Newton-Raphson
+//Recursive newton raphson rules!
+//Modify to void computeInverse(const BigInt &a,unsigned int k)
+void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
 {
-    if (*this == BigInt(1))
+    if (c == BigInt(1) || size < c.size || size < 2)
     {
+        clear();
+        return;
         throw std::exception();
     }
-    BigInt xn1(k);
-    BigInt kbuff(4 * k);
-    BigInt buff(2 * k);
-    BigInt xn2(2 * k);
-    BigInt mBuff(2*k);
-    mBuff = (*this);
-    if (k >= 16 && size >= 8)
-    {
-        std::cout<<"computing approx"<<std::endl;
-        int position = (getActualSize()+31)/32;
-        BigInt a(xn2, 0, 16);
-        BigInt b(*this, size - 8, 8);
-        a.digits[a.size-1] = (1<<(sizeof(uint32_t)*8-1));
-        xn1.naiveDiv(a, b);
-        xn1 = (xn1 << ((k - position - 8) * 32 +1));
-        a.digits = b.digits = nullptr;
-        std::cout<<"approx computed"<<std::endl;
-    }
-    int i;
-    for (i = 0; i < k; ++i)
-    {
-        std::cout<<i<<" iteration\r"<<std::flush; 
-        xn2 = (*this);
-        buff.clear();
-        buff.karatsuba(xn2, xn1, kbuff);
+    int position = c.getActualSize()  / 32;
 
-        xn2.digits[k] = 2;
+    if (c.size == 1 && size == 2)
+    {
+        buffer = 1;
+        buffer = (buffer << (sizeof(uint64_t) * 8 - 1));
+        buffer /= (c.digits[0] >> 1);
+        digits[0] = buffer;
+        digits[1] = (buffer >> (sizeof(uint32_t) * 8));
+    }
+    else
+    {
+        BigInt mBuff(size * 2);
+        mBuff = c;
+        //Aproximation part
+        BigInt a(*this, 0, std::max(2U, (size - (size / 2))));
+        BigInt b(c, position/2,position-position/2); // Assuming division is rounded down
+        a.computeInverse(b);
+        //(*this) = ((*this) << ((k) * 32 - c.getActualSize() - a.getActualSize() + 1));
+        (*this) <<= ((size)*32 - c.getActualSize() - a.getActualSize() + 1);
+        a.digits = b.digits = nullptr;
+    }
+
+    BigInt xn2(2 * size);
+    BigInt kbuff(4 * size);
+    BigInt buff(2 * size);
+
+    //std::cout << " k " << size << " n: " << size << " a.n: " << size << " res.n: " << xn2.size << std::endl;
+
+    int i;
+    for (i = 0;; ++i)
+    {
+        //std::cout << i << " iteration\r" << std::flush;
+        xn2 = c;
+        buff.clear();
+        buff.karatsuba(xn2, (*this), kbuff);
+
+        xn2.digits[size] = 2;
 
         xn2 -= buff;
         buff = xn2;
         xn2.clear();
-        xn2.karatsuba(buff, xn1, kbuff);
+        xn2.karatsuba(buff, (*this), kbuff);
 
-        xn2 = (xn2 >> (k * 32));
-        if(xn2==xn1)
+        xn2 = (xn2 >> (size * 32));
+        if (xn2 == (*this))
         {
             break;
         }
-        xn1 = xn2;
+        (*this) = xn2;
     }
-    std::cout << "iterations: " << i << " k " << k << " n: " << size << " a.n: " << xn1.size << " res.n: " << xn2.size << std::endl;
-    return xn1;
+    //std::cout<<"\n";
 }

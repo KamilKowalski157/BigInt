@@ -38,19 +38,21 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
     BigInt a(size);
     BigInt b(size);
     BigInt c(size);
-
+    double time;
     for (int i = 0; i < n; i++)
     {
         generate(a, size);
         generate(b, size);
+        startTimer();
         c = a - b;
+        time += stopTimer();
         if ((c + b) != a)
         {
             failures++;
             std::cout << "case: " << i << " test failed for a:" << a << "\n and b: " << b << std::endl;
         }
     }
-    double time = stopTimer();
+    //double time = stopTimer();
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
@@ -98,13 +100,13 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     BigInt b(size);
     BigInt c(size * 2);
     BigInt d(size * 2);
-    BigInt f(size);
+    BigInt f(size * 2);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
     double time = 0;
     for (int i = 0; i < n; i++)
     {
-        //size1 = dist(engine);
+        size1 = dist(engine);
         generate(a, size);
         generate(b, size);
         //c.naiveMul(a,b);
@@ -114,16 +116,18 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         startTimer();
-        d = (c / b);
+        //c = c*b;
+        //c.karatsuba(a, b, f);
+        d = c/b;
         //d.naiveDiv(c,b);
         time += stopTimer();
-        continue;
+        //continue;
 
         if (d != a)
         {
-            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            std::cout << "c: " << c << std::endl;
-            std::cout << "d: " << d << std::endl;
+            //std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            //std::cout << "c: " << c << std::endl;
+            //std::cout << "d: " << d << std::endl;
             failures++;
             continue;
         }

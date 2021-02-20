@@ -51,7 +51,7 @@ class BigInt
     void karatsuba(const BigInt &a, const BigInt &b, BigInt &buff1);
     void naiveMul(const BigInt &a, const BigInt &b);
 
-    BigInt computeInverse(unsigned int k) const;
+    void computeInverse(const BigInt &a);
     void naiveDiv(const BigInt &a, const BigInt &b);
 
     friend std::ostream &operator<<(std::ostream &stream, const BigInt &b);
