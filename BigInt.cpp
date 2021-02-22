@@ -206,10 +206,6 @@ std::string BigInt::toDec() const
             break;
         }
     }
-    if (sign)
-    {
-        res += "-";
-    }
     char digit = sign;
     for (int a = 0; a < i + 1; ++a, j = 7)
     {
@@ -219,6 +215,10 @@ std::string BigInt::toDec() const
             res.insert(res.begin(), '0' + (digit % 10));
             digit /= 10;
         }
+    }
+    if (sign)
+    {
+        res.insert(res.begin(), '-');
     }
     delete[] tab;
     return res;

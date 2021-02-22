@@ -38,7 +38,7 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
     BigInt a(size);
     BigInt b(size);
     BigInt c(size);
-    double time;
+    double time = 0;
     for (int i = 0; i < n; i++)
     {
         generate(a, size);
@@ -46,28 +46,31 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
         startTimer();
         c = a - b;
         time += stopTimer();
+        continue;
         if ((c + b) != a)
         {
             failures++;
             std::cout << "case: " << i << " test failed for a:" << a << "\n and b: " << b << std::endl;
         }
     }
+    std::cout<<(time/n);
     //double time = stopTimer();
-    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 
 unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
 {
     unsigned int failures = 0;
-    startTimer();
+    //startTimer();
 
     std::uniform_int_distribution dist(0, (int)size - 1);
 
     BigInt a(size * 2);
     BigInt b(size * 2);
     unsigned int shift;
+    double time = 0;
 
     for (int i = 0; i < n; i++)
     {
@@ -76,8 +79,9 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
         generate(a, size);
 
         b = a;
-
+        startTimer();
         a = (a << shift);
+        time += stopTimer();
         a = (a >> shift);
 
         if (a != b)
@@ -87,9 +91,10 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
             failures++;
         }
     }
-    double time = stopTimer();
-    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    //double time = stopTimer();
+    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    std::cout<<(time/n);
     return failures;
 }
 unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
@@ -97,9 +102,9 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     unsigned int failures = 0;
 
     BigInt a(size);
-    BigInt b(4);
+    BigInt b(size);
     BigInt c(size * 2);
-    BigInt d(size * 2);
+    BigInt d(size);
     BigInt f(size * 2);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
@@ -108,44 +113,48 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     {
         size1 = dist(engine);
         generate(a, size);
-        generate(b, 4);
+        generate(b, size);
         //c.naiveMul(a,b);
-        c = a;
+        //c = a;
         //c.naiveMul(a,b);
-        //c = c*b;
+        //c = a*b;
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
-        c = a*b;
+        startTimer();
+        //c = a*b;
+        //c = a*b;
+        c.naiveMul(a,b);
+        //d = c/b;
+        time += stopTimer();
         //startTimer();
         //c.naiveMul(a,b);
         //c = c*b;
         //c.karatsuba(a, b, f);
-        d = c/b;
+        //d = c/b;
         //d.naiveDiv(c,b);
         //time += stopTimer();
+        continue;
 
         if (d != a)
         {
             std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            startTimer();
             std::cout << "c: " << c << std::endl;
-            time+=stopTimer();
             std::cout << "d: " << d << std::endl;
             failures++;
             continue;
         }
-        startTimer();
-        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        time+=stopTimer();
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
     }
-    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    if(failures!=0){std::cout<<"test failed";}
+    std::cout<<std::fixed<<(time/n)<<std::endl;
     return failures;
 }
 
 void Tester::manual()
 {
-    BigInt y("6732804395820369871039864");
+    BigInt y("-6732804395820369871039864");
     //y.negate();
     std::cout << y << std::endl;
     /*for(int i = 0;i<16;i++)
@@ -217,7 +226,7 @@ void Tester::pickYourFighter(char **argv, int argc)
         size = toInt(argv[2]);
     }
 
-    std::cout << "executing " << argv[0] << " test for n = " << n << " and size = " << size << std::endl;
+    //std::cout << "executing " << argv[0] << " test for n = " << n << " and size = " << size << std::endl;
 
     if (!strcmp(argv[0], "a&s"))
     {
