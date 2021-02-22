@@ -97,7 +97,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     unsigned int failures = 0;
 
     BigInt a(size);
-    BigInt b(size);
+    BigInt b(4);
     BigInt c(size * 2);
     BigInt d(size * 2);
     BigInt f(size * 2);
@@ -108,30 +108,35 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     {
         size1 = dist(engine);
         generate(a, size);
-        generate(b, size);
+        generate(b, 4);
         //c.naiveMul(a,b);
         c = a;
         //c.naiveMul(a,b);
-        c = c*b;
+        //c = c*b;
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
-        startTimer();
+        c = a*b;
+        //startTimer();
+        //c.naiveMul(a,b);
         //c = c*b;
         //c.karatsuba(a, b, f);
         d = c/b;
         //d.naiveDiv(c,b);
-        time += stopTimer();
-        //continue;
+        //time += stopTimer();
 
         if (d != a)
         {
-            //std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            //std::cout << "c: " << c << std::endl;
-            //std::cout << "d: " << d << std::endl;
+            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            startTimer();
+            std::cout << "c: " << c << std::endl;
+            time+=stopTimer();
+            std::cout << "d: " << d << std::endl;
             failures++;
             continue;
         }
-        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        startTimer();
+        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        time+=stopTimer();
     }
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
@@ -140,8 +145,17 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
 void Tester::manual()
 {
-    BigInt y("");
+    BigInt y("6732804395820369871039864");
+    //y.negate();
     std::cout << y << std::endl;
+    /*for(int i = 0;i<16;i++)
+    {
+        for(int j = 0;j<16;j++)
+        {
+            std::cout<<(i>4)*48+(j>4)*3<<", ";
+        }
+        std::cout<<"\n";
+    }*/
 }
 void Tester::generate(BigInt &a, int size)
 {
@@ -154,6 +168,7 @@ void Tester::generate(BigInt &a, int size)
             a.digits[j] = (a.digits[j] << 1);
         }
     }
+    //a.sign = dist(engine);
 }
 unsigned int Tester::testInversion(unsigned int n, unsigned int size)
 {

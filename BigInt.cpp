@@ -16,22 +16,53 @@ std::string var2Bin(const T &var)
     }
     return result;
 }
+// For double dabble algorithm
+char lookupTable[256] = {0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51};
 
 BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
 {
-    bool negative = false;
+    sign = false;
     if (str[0] == '-')
     {
-        negative = true; // TODO
+        sign = true; // TODO
     }
     uint32_t d_buff;
-    for (int i = 0; i < size; i++)
+    if (sign)
     {
-        for (int j = 0, k = i * 8; j < 8; j++, k++)
+        for (int i = 0; i < size; i++)
         {
-            digits[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * (k < str.size())) << (j * 4));
+            for (int j = 0, k = i * 8; j < 8; j++, k++)
+            {
+                digits[i] += (((str[((str.size() - 2 - k) % (str.size() - 1)) + 1] - '0') * (k < str.size() - 1)) << (j * 4));
+            }
         }
     }
+    else
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0, k = i * 8; j < 8; j++, k++)
+            {
+                digits[i] += (((str[(str.size() - 1 - k) % str.size()] - '0') * (k < str.size())) << (j * 4));
+            }
+        }
+    }
+
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < 32; j++)
@@ -62,7 +93,16 @@ BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
         {
             digits[j] = digits[j - 1];
         }
-        digits[i] = d_buff;
+        if (sign)
+        {
+            buffer = ~d_buff;
+            buffer += (i == 0);
+        }
+        else
+        {
+            buffer = d_buff;
+        }
+        digits[i] = buffer;
     }
 }
 
@@ -132,28 +172,22 @@ std::string BigInt::toDec() const
     {
         for (int j = sizeof(uint32_t) * 8 - 1; j >= 0; --j)
         {
-            for (int k = 0; k < s_size; ++k) // Can be optimized ot run in half time
+            for (unsigned char *ptr = (unsigned char *)tab; ptr < (unsigned char *)(tab + s_size - (int)(i * 1.204)); ++ptr)
             {
-                for (int l = 0, base = 3; l < 8; ++l, base = (base << 4))
-                {
-                    if (((tab[k] >> (l * 4)) & 15) > 4)
-                    {
-                        tab[k] += base;
-                    }
-                }
+                *ptr += lookupTable[*ptr];
             }
             buffer = 0;
-            for (int k = 0; k < s_size; ++k)
+            for (int k = 0; k < s_size - (int)(i * 1.204); ++k)
             {
                 buffer += (((uint64_t)tab[k]) * 2);
                 tab[k] = buffer;
                 buffer = (buffer >> (sizeof(uint32_t) * 8));
             }
-            /*if (sign)
+            if (sign)
             {
                 tab[0] += (((~(*this)[i]) & (1 << (j))) != 0);
                 continue;
-            }*/
+            }
             tab[0] += (((*this)[i] & (1 << (j))) != 0);
         }
     }
@@ -177,17 +211,17 @@ std::string BigInt::toDec() const
         res += "-";
     }
     char digit = sign;
-    char carry = 0;
-    for (; i >= 0; --i, j = 7)
+    for (int a = 0; a < i + 1; ++a, j = 7)
     {
-        for (; j >= 0; --j)
+        for (int b = 0; b <= 7 * (a != i) + (7 - j) * (a == i); ++b)
         {
-            digit = ((tab[i] >> (j * 4)) % 16);
-            res += ('0' + digit);
+            digit += ((tab[a] >> (b * 4)) % 16);
+            res.insert(res.begin(), '0' + (digit % 10));
+            digit /= 10;
         }
     }
     delete[] tab;
-    return "*" + res + "*";
+    return res;
 }
 std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
 {
@@ -526,12 +560,27 @@ BigInt BigInt::operator/(const BigInt &b) const
     {
         throw std::exception();
     }
-    BigInt a(2 * size);
+    BigInt a(size * 2);
     BigInt c(size);
-    c.computeInverse(b);
-    a = c;
-    a = a * (*this);
-    //buffer = (a.digits[size - 1] >> (sizeof(uint32_t) * 8 - 1));
+    BigInt aliasa((*this), 0, size);
+    BigInt aliasb(b, 0, b.size);
+    bool signa = aliasa.abs();
+    bool signb = aliasb.abs();
+    c.computeInverse(aliasb);
+    a = c * aliasa;
+    if (signb)
+    {
+        aliasb.negate();
+    }
+    if (signa)
+    {
+        aliasa.negate();
+    }
+    if (signa ^ signb)
+    {
+        a.negate();
+    }
+    aliasa.digits = aliasb.digits = nullptr;
     return (a >> (size * 32)); // + BigInt("1") * buffer;
 }
 BigInt BigInt::operator%(const BigInt &b) const
@@ -568,17 +617,6 @@ BigInt BigInt::operator%(const BigInt &b) const
     return buffer;
 }
 
-void BigInt::mulAdd(const BigInt &a, uint64_t b)
-{
-    buffer = 0;
-    a.buffer = b;
-    for (int i = 0; i < size; i++)
-    {
-        buffer += (a.buffer * a[i]);
-        digits[i] = buffer;
-        buffer = (buffer >> (sizeof(uint32_t) * 8));
-    }
-}
 void BigInt::naiveMul(const BigInt &a, const BigInt &b)
 {
     for (int i = 0, j = 0; i < a.size; ++i, j = 0)
@@ -669,9 +707,31 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
-    BigInt result(size);
+    BigInt result(2 * size);
     BigInt buff1(2 * size);
-    result.karatsuba(*this, _b, buff1);
+
+    BigInt aliasa(*this, 0, size);
+    BigInt aliasb(_b, 0, _b.size);
+
+    bool signa = aliasa.abs();
+    bool signb = aliasb.abs();
+
+    result.karatsuba(aliasa, aliasb, buff1);
+
+    if (signa ^ signb)
+    {
+        result.negate();
+    }
+    if (signa)
+    {
+        aliasa.negate();
+    }
+    if (signb)
+    {
+        aliasb.negate();
+    }
+
+    aliasa.digits = aliasb.digits = nullptr;
     return result;
 }
 BigInt BigInt::operator*(int32_t b) const
@@ -692,47 +752,8 @@ BigInt BigInt::operator*(int32_t b) const
     }
     return result;
 }
-// Non restoring division, sorta...
-void BigInt::naiveDiv(const BigInt &a, const BigInt &b)
-{
-    int s1 = a.getActualSize();
-    int s2 = b.getActualSize();
-    if (b == 0)
-    {
-        throw std::exception();
-    }
-    if (s1 < s2)
-    {
-        clear();
-        return;
-    }
-    BigInt buffer(a);
-    BigInt divisor(b.size + (s1 - s2 + 31) / 32);
-    divisor = b;
-    bool sign = divisor.abs() ^ buffer.abs();
-    divisor = (divisor << (s1 - s2));
-    BigInt one[2]{1, 1};
-    one[0].digits[0] = one[1].digits[0] = 1;
-    one[1].negate();
-    while (s1 >= s2)
-    {
-        shiftLeft();
-        (*this) += one[buffer.sign];
-        if (buffer.sign)
-        {
-            buffer += divisor;
-        }
-        else
-        {
-            buffer -= divisor;
-        }
-        divisor.shiftRight();
-        s1--;
-    }
-    (*this) -= one[buffer.sign] * buffer.sign;
-}
-//Recursive newton raphson rules!
-//Modify to void computeInverse(const BigInt &a,unsigned int k)
+
+//Recursive newton raphson ftw!
 void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
 {
     if (c == BigInt(1) || size < c.size || size < 2)
@@ -741,7 +762,7 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
         return;
         throw std::exception();
     }
-    int position = c.getActualSize()  / 32;
+    int position = (c.getActualSize() + 31) / 32;
 
     if (c.size == 1 && size == 2)
     {
@@ -753,13 +774,12 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     }
     else
     {
-        BigInt mBuff(size * 2);
-        mBuff = c;
         //Aproximation part
+
         BigInt a(*this, 0, std::max(2U, (size - (size / 2))));
-        BigInt b(c, position/2,position-position/2); // Assuming division is rounded down
+        BigInt b(c, position / 2, position - position / 2);
         a.computeInverse(b);
-        //(*this) = ((*this) << ((k) * 32 - c.getActualSize() - a.getActualSize() + 1));
+
         (*this) <<= ((size)*32 - c.getActualSize() - a.getActualSize() + 1);
         a.digits = b.digits = nullptr;
     }
@@ -776,14 +796,14 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
         //std::cout << i << " iteration\r" << std::flush;
         xn2 = c;
         buff.clear();
-        buff.karatsuba(xn2, (*this), kbuff);
+        buff.karatsuba(xn2, (*this), kbuff); // optimize to use min alias
 
         xn2.digits[size] = 2;
 
         xn2 -= buff;
         buff = xn2;
         xn2.clear();
-        xn2.karatsuba(buff, (*this), kbuff);
+        xn2.karatsuba(buff, (*this), kbuff); // optimize to use min alias
 
         xn2 = (xn2 >> (size * 32));
         if (xn2 == (*this))
