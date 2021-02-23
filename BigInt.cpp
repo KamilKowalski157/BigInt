@@ -735,8 +735,8 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
-    BigInt result(2 * size);
-    BigInt buff1(2 * size);
+    BigInt result(size+_b.size);
+    BigInt buff1(result.size);
 
     BigInt aliasa(*this, 0, size);
     BigInt aliasb(_b, 0, _b.size);

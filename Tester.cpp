@@ -133,7 +133,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //d = c/b;
         //d.naiveDiv(c,b);
         //time += stopTimer();
-        continue;
+        //continue;
 
         if (d != a)
         {
@@ -143,7 +143,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             failures++;
             continue;
         }
-        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
     }
     //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
@@ -157,9 +157,9 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
 void Tester::manual()
 {
-    BigInt a("5423980570239572");
+    BigInt a("20");
     BigInt b("1463809713245893462108216898923");
-    std::cout << ((a * b) % b) << std::endl;
+    std::cout << (a*b)<< std::endl;
     /*for(int i = 0;i<16;i++)
     {
         for(int j = 0;j<16;j++)

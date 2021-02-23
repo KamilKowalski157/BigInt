@@ -31,8 +31,7 @@ class BigInt
 
     bool sign = false;
     uint32_t *digits = nullptr;
-    const uint32_t size = 0;
-    
+
     void leftShiftDigits(uint32_t n);
     void rightShiftDigits(uint32_t n);
 
@@ -62,6 +61,8 @@ class BigInt
     }
 
 public:
+    const uint32_t size = 0;
+    
     BigInt(int a = 1) : size(allocate(a)) { sign = 0; }
     BigInt(const std::string &decStr);
     BigInt(BigInt &&b);
@@ -97,7 +98,7 @@ public:
 
     uint32_t operator[](int i) const
     {
-        return digits[i * (i < size)] * (i >= 0) * (i < size) + (~0) * sign * (!(i < size));
+        return digits[i * (i < size)] * (i >= 0) * (i < size) + (~0) * sign * (!(i < size||i<0));
     }
     void computeInverse(const BigInt &a);
 
