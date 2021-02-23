@@ -11,7 +11,7 @@ performance and validity of particular operations. As of now range of operations
  Simple karatsuba implementation with buffer\
  Possible improvement might be to change length at which arguments are split (`mid`)\
  Time complexity of <img src="https://latex.codecogs.com/png.latex?{\color{white}O(n^{log_23})}" title="{\color{white}O(n^{log_23})}" />\
- Plots confirm complexity in range 1024-131,072 32-bit digits as a factors, (using python plotter look for coefficient parameter k, complexity then is calculated as: <img src="https://latex.codecogs.com/gif.latex?O(n^{\log_2k}{\color{White}}" title="O(n^{\log_2k}){\color{White}}" />)
+ Plots confirm complexity in range 1024-131,072 32-bit digits as a factors, (using python plotter look for coefficient parameter k, complexity then is calculated as: O(n^(log(k)/log(2))) )
  ## Division
  Newton-Raphson division using karatsuba as a base operation, according to not-so-reliable plots it achieves slightly worse complexity than karatsuba
  ## Conversion to base-10
