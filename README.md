@@ -15,7 +15,7 @@ performance and validity of particular operations. As of now range of operations
  ## Division
  Newton-Raphson division using karatsuba as a base operation, according to not-so-reliable plots it achieves slightly worse complexity than karatsuba
  ## Conversion to base-10
- O(n^2) complexity, using double dabble algorithm, possible idea is to use 8 as a multiplier and 1024 as base (1000%8 = 1) 
+ O(n^2) complexity, using double dabble algorithm, possible idea is to use 8 as a multiplier and 1024 as base (1000%8 = 0) 
  allowing for more efficient memory management and shorter execution time
  
 # TODO
