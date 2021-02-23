@@ -53,7 +53,7 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
             std::cout << "case: " << i << " test failed for a:" << a << "\n and b: " << b << std::endl;
         }
     }
-    std::cout<<(time/n);
+    std::cout << (time / n);
     //double time = stopTimer();
     //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
@@ -94,7 +94,7 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
     //double time = stopTimer();
     //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
-    std::cout<<(time/n);
+    std::cout << (time / n);
     return failures;
 }
 unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
@@ -117,14 +117,14 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //c.naiveMul(a,b);
         //c = a;
         //c.naiveMul(a,b);
-        c = a*b;
+        c = a * b;
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         startTimer();
         //c = a*b;
         //c = a*b;
         //c.naiveMul(a,b);
-        d = c/b;
+        d = c / b;
         time += stopTimer();
         //startTimer();
         //c.naiveMul(a,b);
@@ -147,16 +147,19 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     }
     //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
-    if(failures!=0){std::cout<<"test failed";}
-    std::cout<<std::fixed<<(time/n)<<std::endl;
+    if (failures != 0)
+    {
+        std::cout << "test failed";
+    }
+    std::cout << std::fixed << (time / n) << std::endl;
     return failures;
 }
 
 void Tester::manual()
 {
-    BigInt y("-6732804395820369871039864");
-    //y.negate();
-    std::cout << y << std::endl;
+    BigInt a("5423980570239572");
+    BigInt b("1463809713245893462108216898923");
+    std::cout << ((a * b) % b) << std::endl;
     /*for(int i = 0;i<16;i++)
     {
         for(int j = 0;j<16;j++)

@@ -17,22 +17,24 @@ std::string var2Bin(const T &var)
     return result;
 }
 // For double dabble algorithm
-char lookupTable[256] = {0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
-                         48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51};
+char BigInt::conversionLookupTable[256] = {0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                                           0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                                           0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                                           0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                                           0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+                                           48, 48, 48, 48, 48, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51};
+
+char BigInt::hexLookupTable[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 BigInt::BigInt(const std::string &str) : size(allocate((str.size() / 8) + 1))
 {
@@ -174,7 +176,7 @@ std::string BigInt::toDec() const
         {
             for (unsigned char *ptr = (unsigned char *)tab; ptr < (unsigned char *)(tab + s_size - (int)(i * 1.204)); ++ptr)
             {
-                *ptr += lookupTable[*ptr];
+                *ptr += conversionLookupTable[*ptr];
             }
             buffer = 0;
             for (int k = 0; k < s_size - (int)(i * 1.204); ++k)
@@ -207,14 +209,18 @@ std::string BigInt::toDec() const
         }
     }
     char digit = sign;
-    for (int a = 0; a < i + 1; ++a, j = 7)
+    for (int a = 0; a < i + 1; ++a)
     {
-        for (int b = 0; b <= 7 * (a != i) + (7 - j) * (a == i); ++b)
+        for (int b = 0; b <= 7 * (a != i) + j * (a == i); ++b)
         {
             digit += ((tab[a] >> (b * 4)) % 16);
             res.insert(res.begin(), '0' + (digit % 10));
             digit /= 10;
         }
+    }
+    if(res.size()==0)
+    {
+        res = "0";
     }
     if (sign)
     {
@@ -222,6 +228,16 @@ std::string BigInt::toDec() const
     }
     delete[] tab;
     return res;
+}
+std::string BigInt::toHex() const
+{
+    std::string result;
+    for (unsigned char *ptr = (unsigned char *)digits; ptr < (unsigned char *)(digits + size); ++ptr)
+    {
+        result.insert(result.begin(), hexLookupTable[(*ptr) & 15]);
+        result.insert(result.begin(), hexLookupTable[(*ptr) >> 4]);
+    }
+    return result;
 }
 std::ostream &operator<<(std::ostream &stream, const BigInt &_b)
 {
@@ -566,6 +582,16 @@ BigInt BigInt::operator/(const BigInt &b) const
     BigInt aliasb(b, 0, b.size);
     bool signa = aliasa.abs();
     bool signb = aliasb.abs();
+    if (aliasb.getActualSize() == 1)
+    {
+        aliasa.digits = aliasb.digits = nullptr;
+        a = (*this);
+        if (signa ^ signb)
+        {
+            a.negate();
+        }
+        return a;
+    }
     c.computeInverse(aliasb);
     a = c * aliasa;
     if (signb)
@@ -596,7 +622,9 @@ BigInt BigInt::operator%(const BigInt &b) const
     int s1 = buffer.getActualSize();
     int s2 = divisor.getActualSize();
     divisor <<= (s1 - s2);
-    BigInt one[2]{1, -1};
+    BigInt one[2]{1, 1};
+    one[0].digits[0] = one[1].digits[0] = 1;
+    one[1].negate();
     while (s1 >= s2)
     {
         if (buffer.sign)
@@ -658,7 +686,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     BigInt r2((*this), mid, size - mid);
     BigInt r3((*this), 2 * mid, size - 2 * mid);
 
-    BigInt buf1(buff, 0, 2*mid);
+    BigInt buf1(buff, 0, 2 * mid);
     BigInt buf4(buff, buf1.size, buff.size - buf1.size);
 
     r1.karatsuba(a1, b1, buf1);

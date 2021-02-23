@@ -11,3 +11,5 @@ ${target}: ${objects}
 
 clean:
 	rm -f *.o
+lib: ${objects}
+	ar rcs ./Lib/libbigint5.a BigInt.o
