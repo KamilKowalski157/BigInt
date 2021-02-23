@@ -658,11 +658,11 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     BigInt r2((*this), mid, size - mid);
     BigInt r3((*this), 2 * mid, size - 2 * mid);
 
-    BigInt buf1(buff, 0, a1.size + b1.size);
+    BigInt buf1(buff, 0, 2*mid);
     BigInt buf4(buff, buf1.size, buff.size - buf1.size);
 
-    r1.karatsuba(a1, b1, buff);
-    r3.karatsuba(a2, b2, buff);
+    r1.karatsuba(a1, b1, buf1);
+    r3.karatsuba(a2, b2, buf1);
 
     bool sign_a = false;
     bool sign_b = true;

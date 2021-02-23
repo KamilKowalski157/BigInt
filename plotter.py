@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-file = open("Logs/newton_raphson_log1.txt")
+file = open("Logs/karatsuba_log2.txt")
 data_raw = file.read().split(",")
 print(data_raw)
 data = [round(float(i),2) for i  in data_raw]

@@ -122,8 +122,8 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //continue;
         startTimer();
         //c = a*b;
-        //c = a*b;
-        c.naiveMul(a,b);
+        c = a*b;
+        //c.naiveMul(a,b);
         //d = c/b;
         time += stopTimer();
         //startTimer();

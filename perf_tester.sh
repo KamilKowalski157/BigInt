@@ -4,7 +4,7 @@ power=1
 tests=1000000
 for i in {1..15}
 do
-    echo "$(./BigInt5 "m&d" "$tests" "$power") , " >> log.txt
+    echo "$(./BigInt5 'm&d' $tests $power) , " >> log.txt
     power=$((power * 2))
     tests=$((tests / 2))
 done
