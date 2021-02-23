@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
-file = open("Logs/karatsuba_log2.txt")
+import sys
+
+file = open(sys.argv[1])
 data_raw = file.read().split(",")
 print(data_raw)
 data = [round(float(i),2) for i  in data_raw]

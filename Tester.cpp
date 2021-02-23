@@ -117,14 +117,14 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //c.naiveMul(a,b);
         //c = a;
         //c.naiveMul(a,b);
-        //c = a*b;
+        c = a*b;
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         startTimer();
         //c = a*b;
-        c = a*b;
+        //c = a*b;
         //c.naiveMul(a,b);
-        //d = c/b;
+        d = c/b;
         time += stopTimer();
         //startTimer();
         //c.naiveMul(a,b);
