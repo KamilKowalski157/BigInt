@@ -16,8 +16,6 @@
 class Tester;
 class BigInt;
 
-//class BufferStack
-
 class BigInt
 {
 
@@ -62,7 +60,7 @@ class BigInt
 
 public:
     const uint32_t size = 0;
-    
+
     BigInt(int a = 1) : size(allocate(a)) { sign = 0; }
     BigInt(const std::string &decStr);
     BigInt(BigInt &&b);
@@ -88,6 +86,10 @@ public:
     BigInt &operator>>=(int shift);
     BigInt &operator*=(const int32_t b);
 
+    void sqrt(const BigInt &base);
+    void pow(const BigInt &base, uint32_t exponent);
+    void modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus);
+
     bool operator<(const BigInt &b) const;
     bool operator>(const BigInt &b) const;
     bool operator==(const BigInt &b) const;
@@ -98,7 +100,7 @@ public:
 
     uint32_t operator[](int i) const
     {
-        return digits[i * (i < size)] * (i >= 0) * (i < size) + (~0) * sign * (!(i < size||i<0));
+        return digits[i * (i < size)] * (i >= 0) * (i < size) + (~0) * sign * (!(i < size || i < 0));
     }
     void computeInverse(const BigInt &a);
 
@@ -117,6 +119,20 @@ public:
     void shiftRight(); // Fast implementation for single shift
 
     ~BigInt();
+};
+
+union Trickster
+{
+    BigInt bint;
+    struct
+    {
+        uint64_t buffer;
+        bool sign;
+        uint32_t *digits;
+        uint32_t size;
+    } fields;
+    Trickster(bool _sign, uint32_t *_digits, uint32_t _size) : fields{0,_sign,_digits,_size} {}
+    ~Trickster() {}
 };
 
 std::ostream &operator<<(std::ostream &stream, const BigInt &b);

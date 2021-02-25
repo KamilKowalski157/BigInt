@@ -218,7 +218,7 @@ std::string BigInt::toDec() const
             digit /= 10;
         }
     }
-    if(res.size()==0)
+    if (res.size() == 0)
     {
         res = "0";
     }
@@ -647,7 +647,7 @@ BigInt BigInt::operator%(const BigInt &b) const
 
 void BigInt::naiveMul(const BigInt &a, const BigInt &b)
 {
-    for (int i = 0, j = 0; i < a.size; ++i, j = 0)
+    for (int i = 0, j = 0; i < a.size && i < size; ++i, j = 0)
     {
         buffer = 0;
         for (; (j + i) < size && j < b.size; ++j)
@@ -659,7 +659,7 @@ void BigInt::naiveMul(const BigInt &a, const BigInt &b)
             digits[i + j] = buffer;
             buffer = (buffer >> (sizeof(uint32_t) * 8));
         }
-        digits[i + j] = buffer;
+        digits[(i + j) % size] += buffer * ((i + j) < size);
     }
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters
@@ -668,74 +668,73 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     {
         return;
     }
-    if (size < 256)
+    if (size < 128)
     {
         naiveMul(a, b);
         return;
     }
 
     unsigned int mid = std::max(a.size + 1, b.size + 1) / 2;
-    // I have guarantee that a1.n>=a2.n and b1.n>=b2.n
+    unsigned int mida = std::min(a.size, mid);
+    unsigned int midb = std::min(b.size, mid);
 
-    BigInt a1(a, 0, mid);
-    BigInt a2(a, a1.size, mid);
-    BigInt b1(b, 0, mid);
-    BigInt b2(b, b1.size, mid);
+    Trickster a1(a.sign, a.digits, mida);
+    Trickster a2(a.sign, a.digits + mida, a.size - mida);
+    Trickster b1(b.sign, b.digits, midb);
+    Trickster b2(b.sign, b.digits + midb, b.size - midb);
 
-    BigInt r1((*this), 0, 2 * mid);
-    BigInt r2((*this), mid, size - mid);
-    BigInt r3((*this), 2 * mid, size - 2 * mid);
+    Trickster r1(sign, digits, mid);
+    Trickster r2(sign, digits + mid, mid);
 
-    BigInt buf1(buff, 0, 2 * mid);
-    BigInt buf4(buff, buf1.size, buff.size - buf1.size);
+    Trickster buff1(buff.sign, buff.digits, 2 * mid);
+    Trickster buff2(buff.sign, buff.digits + 2 * mid, buff.size - 2 * mid);
 
-    r1.karatsuba(a1, b1, buf1);
-    r3.karatsuba(a2, b2, buf1);
+    r1.bint = a1.bint;
+    r1.bint -= a2.bint;
+
+    r2.bint = b1.bint; //!!!!!!
+    r2.bint -= b2.bint;
 
     bool sign_a = false;
     bool sign_b = true;
-    a1 -= a2;
-    if (a1.sign)
+    if (r1.bint.sign)
     {
         sign_a = true;
-        a1.negate();
+        r1.bint.negate();
     }
-    b1 -= b2;
-    if (b1.sign)
+    if (r2.bint.sign)
     {
         sign_b = false;
-        b1.negate();
+        r2.bint.negate();
     }
+    buff1.bint.clear();
+    buff1.bint.karatsuba(r1.bint, r2.bint, buff2.bint);
 
-    buff = r1;
-    buff += r3;
-    r2 += buff;
+    r2.fields.digits = digits + 2 * mid;
+    r2.fields.size = size - 2 * mid;
 
-    buf1.clear();
-    buf1.karatsuba(a1, b1, buf4); // two versions optimization ?
+    r1.fields.size = 2 * mid;
 
-    if (sign_a)
-    {
-        a1.negate();
-    }
-    if (!sign_b)
-    {
-        b1.negate();
-    }
-    b1 += b2;
-    a1 += a2;
+    clear();
+    r1.bint.karatsuba(a1.bint, b1.bint, buff2.bint);
+    r2.bint.karatsuba(a2.bint, b2.bint, buff2.bint);
+    buff2.bint.clear();
+
     if (sign_a ^ sign_b)
     {
-        r2 -= buf1;
-        a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr; // clean up
-        return;
+        buff.negate();
     }
-    r2 += buf1;
-    a1.digits = a2.digits = b1.digits = b2.digits = r1.digits = r2.digits = r3.digits = buf1.digits = buf4.digits = nullptr; // clean up
+
+    buff += r1.bint;
+    buff += r2.bint;
+
+    r2.fields.digits = digits + mid;
+    r2.fields.size = size - mid;
+    r2.bint += buff;
 }
 BigInt BigInt::operator*(const BigInt &_b) const
 {
-    BigInt result(size+_b.size);
+    BigInt result(size + _b.size);
     BigInt buff1(result.size);
 
     BigInt aliasa(*this, 0, size);
@@ -784,7 +783,7 @@ BigInt BigInt::operator*(int32_t b) const
 //Recursive newton raphson ftw!
 void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
 {
-    if (c == BigInt(1) || size < c.size || size < 2)
+    if (c.getActualSize() == 0 || size < c.size || size < 2)
     {
         clear();
         return;
@@ -841,4 +840,17 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
         (*this) = xn2;
     }
     //std::cout<<"\n";
+}
+void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus)
+{
+}
+void BigInt::pow(const BigInt &base, uint32_t exponent)
+{
+    BigInt buff1((exponent * base.getActualSize() + 31) / 32);
+    BigInt buff2(buff1.size);
+    BigInt kbuff(buff1.size);
+    for (; exponent != 0; exponent >>= 1)
+    {
+        buff1.karatsuba(buff1, base, kbuff);
+    }
 }

@@ -103,8 +103,8 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
     BigInt a(size);
     BigInt b(size);
-    BigInt c(size * 2);
-    BigInt d(size);
+    BigInt c(size);
+    BigInt d(size*2);
     BigInt f(size * 2);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
@@ -112,20 +112,21 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     for (int i = 0; i < n; i++)
     {
         size1 = dist(engine);
-        generate(a, size);
-        generate(b, size);
+        generate(a, size/2);
+        generate(b, size/2);
         //c.naiveMul(a,b);
         //c = a;
         //c.naiveMul(a,b);
-        c = a * b;
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         startTimer();
         //c = a*b;
+        //c = a * b;
+        c.karatsuba(a,b,d);
+        time += stopTimer();
         //c = a*b;
         //c.naiveMul(a,b);
-        d = c / b;
-        time += stopTimer();
+        //d = c / b;
         //startTimer();
         //c.naiveMul(a,b);
         //c = c*b;
@@ -133,7 +134,9 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //d = c/b;
         //d.naiveDiv(c,b);
         //time += stopTimer();
-        //continue;
+
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        continue;
 
         if (d != a)
         {
@@ -143,7 +146,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             failures++;
             continue;
         }
-        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
     }
     //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
