@@ -53,10 +53,10 @@ unsigned int Tester::testAddSubtr(unsigned int n, unsigned int size)
             std::cout << "case: " << i << " test failed for a:" << a << "\n and b: " << b << std::endl;
         }
     }
-    std::cout << (time / n);
+    //std::cout << (time / n);
     //double time = stopTimer();
-    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     return failures;
 }
 
@@ -119,12 +119,13 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //c.naiveMul(a,b);
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
-        c.karatsuba(a, b, d);
+        //c.karatsuba(a, b, d);
         startTimer();
-        d = c / b;
+        c.karatsuba(a, b, d);
+        //d = c / b;
         time += stopTimer();
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        //continue;
+        continue;
 
         if (d != a)
         {
@@ -135,15 +136,15 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             continue;
         }
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        std::cout << i << "/" << n << "\r" << std::flush;
+        //std::cout << i << "/" << n << "\r" << std::flush;
     }
-    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     if (failures != 0)
     {
-        //    std::cout << "test failed";
+            std::cout << "test failed";
     }
-    //std::cout << std::fixed << (time / n) << std::endl;
+    std::cout << std::fixed << (time / n) << std::endl;
     return failures;
 }
 
@@ -151,23 +152,27 @@ unsigned int Tester::testFunctions(unsigned int n, unsigned int size)
 {
     unsigned int failures = 0;
 
-    BigInt a(size);
+    BigInt a(size*2);
     BigInt b(size);
     BigInt modulus(size);
 
     unsigned int exp;
     std::uniform_int_distribution dist(1, 10);
+    double time  = 0;
 
     for (int i = 0; i < n; i++)
     {
-        exp = dist(engine);
-        generate(b, 1);
-        generate(modulus, 1);
-        std::cout << b;
+        exp = 5;
+        generate(b, size);
+        generate(modulus, size);
+        //std::cout << b;
         //a.pow(b, exp);
+        startTimer();
         a.modExp(b, exp, modulus);
-        std::cout << " ^ " << exp << " % " << modulus << " = " << a << std::endl;
+        time+= stopTimer();
+        //std::cout << " ^ " << exp << " % " << modulus << " = " << a << std::endl;
     }
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     return failures;
 }
 

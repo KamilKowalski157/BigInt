@@ -1,7 +1,7 @@
 #!/bin/bash
 rm log.txt
 power=1
-tests=1000000
+tests=10000000
 make
 for i in {1..15}
 do

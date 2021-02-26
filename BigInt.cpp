@@ -546,10 +546,19 @@ BigInt &BigInt::operator>>=(int shift)
 BigInt &BigInt::operator+=(const BigInt &b)
 {
     buffer = 0;
-    for (int i = 0; i < size; i++)
+    int i,min_size;
+    min_size = std::min(size,b.size);
+    for (i = 0; i < min_size; ++i)
     {
         buffer += digits[i];
-        buffer += b[i];
+        buffer += ~b.digits[i];
+        digits[i] = buffer;
+        buffer = (buffer >> (sizeof(uint32_t) * 8));
+    }
+    for(;i<size&&buffer;++i)
+    {
+        buffer += digits[i];
+        buffer += (~0)*b.sign;
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -559,10 +568,19 @@ BigInt &BigInt::operator+=(const BigInt &b)
 BigInt &BigInt::operator-=(const BigInt &b)
 {
     buffer = (uint32_t)(1);
-    for (int i = 0; i < size; i++)
+    int i,min_size;
+    min_size = std::min(size,b.size);
+    for (i = 0; i < min_size; ++i)
     {
         buffer += digits[i];
-        buffer += (~b[i]);
+        buffer += ~b.digits[i];
+        digits[i] = buffer;
+        buffer = (buffer >> (sizeof(uint32_t) * 8));
+    }
+    for(;i<size&&buffer;++i)
+    {
+        buffer += digits[i];
+        buffer += (~0)*b.sign;
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -785,8 +803,6 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
 {
     if (c.getActualSize() == 0 || size < c.size || size < 2)
     {
-        clear();
-        return;
         throw std::exception();
     }
     int position = (c.getActualSize() + 31) / 32;
@@ -821,19 +837,18 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     for (i = 0;; ++i)
     {
         //std::cout << i << " iteration\r" << std::flush;
-        xn2 = c;
+        //xn2 = c;
         buff.clear();
-        buff.karatsuba(xn2, (*this), kbuff); // optimize to use min alias
+        buff.karatsuba(c, (*this), kbuff); // optimize to use min alias
 
+        //xn2.clear();
         xn2.digits[size] = 2;
-
         xn2 -= buff;
         buff = xn2;
         xn2.clear();
         xn2.karatsuba(buff, (*this), kbuff); // optimize to use min alias
 
-        xn2 = (xn2 >> (size * 32));
-        //xn2>>=(size*32);
+        xn2>>=(size*32);
         if (xn2 == (*this))
         {
             break;
@@ -842,20 +857,22 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     }
     //std::cout<<"\n";
 }
-void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus)
+void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus) // Produces overflow for max value!!!!
 {
     clear();
-    BigInt pureMul[] = {{size}, {size}};
-    BigInt dirtyProd[] = {{size}, {size}};
+    BigInt pureMul[] = {{size * 2}, {size * 2}};
+    BigInt dirtyProd[] = {{size * 2}, {size * 2}};
     dirtyProd[0].digits[0] = pureMul[0].digits[0] = dirtyProd[1].digits[0] = pureMul[1].digits[0] = 1;
 
     pureMul[1] = pureMul[0] = base;
 
-    BigInt kbuff(size * 2); // karatsuba buffer
+    BigInt kbuff(size * 4); // karatsuba buffer
 
-    BigInt invBuffer(size * 2);
-    BigInt inverse(size);
+    BigInt invBuffer(size * 4);
+    BigInt inverse(size * 2);
     inverse.computeInverse(modulus);
+
+    Trickster invBufferAlias(invBuffer.sign, invBuffer.digits, size * 2);
 
     int a = 0;
     int b = 0;
@@ -868,9 +885,9 @@ void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus
 
             invBuffer.clear();
             invBuffer.karatsuba(inverse, dirtyProd[b], kbuff);
-            invBuffer = (invBuffer >> (size * 32));
+            invBuffer >>= (size * 2 * 32);
             dirtyProd[!b].clear();
-            dirtyProd[!b].karatsuba(invBuffer, modulus, kbuff);
+            dirtyProd[!b].karatsuba(invBufferAlias.bint, modulus, kbuff);
             dirtyProd[b] -= dirtyProd[!b];
             b = !b;
         }
@@ -879,9 +896,9 @@ void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus
 
         invBuffer.clear();
         invBuffer.karatsuba(inverse, pureMul[a], kbuff);
-        invBuffer = (invBuffer >> (size * 32));
+        invBuffer >>= (size * 2 * 32);
         pureMul[!a].clear();
-        pureMul[!a].karatsuba(invBuffer, modulus, kbuff);
+        pureMul[!a].karatsuba(invBufferAlias.bint, modulus, kbuff);
         pureMul[a] -= pureMul[!a];
     }
     (*this) = dirtyProd[!b];

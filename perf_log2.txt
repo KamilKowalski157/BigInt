@@ -1,0 +1,509 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 68.61     14.80    14.80  1968300     0.00     0.00  BigInt::naiveMul(BigInt const&, BigInt const&)
+ 14.93     18.03     3.22  2952300     0.00     0.00  BigInt::operator+=(BigInt const&)
+  4.68     19.04     1.01 104857600     0.00     0.00  int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&)
+  3.99     19.90     0.86  1968200     0.00     0.00  BigInt::operator-=(BigInt const&)
+  3.99     20.76     0.86  1340136     0.00     0.00  BigInt::negate()
+  1.48     21.08     0.32      200     0.00     0.01  Tester::generate(BigInt&, int)
+  0.67     21.22     0.15 104857700     0.00     0.00  std::__detail::_Mod<unsigned long, 2147483647ul, 16807ul, 0ul, true, true>::__calc(unsigned long)
+  0.51     21.33     0.11 104857700     0.00     0.00  std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()()
+  0.23     21.38     0.05 104857600     0.00     0.00  std::uniform_int_distribution<int>::param_type::b() const
+  0.16     21.42     0.04 104857700     0.00     0.00  unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 16807ul, 0ul>(unsigned long)
+  0.14     21.45     0.03                             void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct_aux<char const*>(char const*, char const*, std::__false_type)
+  0.14     21.48     0.03 104857600     0.00     0.00  int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&)
+  0.09     21.50     0.02      200     0.00     0.00  std::uniform_int_distribution<int>::uniform_int_distribution(int, int)
+  0.09     21.52     0.02      100     0.00     0.20  BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&)
+  0.07     21.53     0.02                             bool __gnu_cxx::__is_null_pointer<char const>(char const*)
+  0.05     21.54     0.01 209715200     0.00     0.00  std::uniform_int_distribution<int>::param_type::a() const
+  0.05     21.55     0.01  8856900     0.00     0.00  unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&)
+  0.05     21.56     0.01  2952300     0.00     0.00  BigInt::clear()
+  0.05     21.57     0.01      200     0.00     0.00  std::uniform_int_distribution<int>::param_type::param_type(int, int)
+  0.05     21.58     0.01                             void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag)
+  0.02     21.59     0.01                             std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_S_copy_chars(char*, char const*, char const*)
+  0.00     21.59     0.00  7872800     0.00     0.00  Trickster::Trickster(bool, unsigned int*, unsigned int)
+  0.00     21.59     0.00  7872800     0.00     0.00  Trickster::~Trickster()
+  0.00     21.59     0.00  1968200     0.00     0.00  BigInt::operator=(BigInt const&)
+  0.00     21.59     0.00   984100     0.00     0.00  unsigned int const& std::max<unsigned int>(unsigned int const&, unsigned int const&)
+  0.00     21.59     0.00      400     0.00     0.00  std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const
+  0.00     21.59     0.00      201     0.00     0.00  std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&)
+  0.00     21.59     0.00      200     0.00     0.00  std::uniform_int_distribution<unsigned int>::param_type::a() const
+  0.00     21.59     0.00      200     0.00     0.00  std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_since_epoch() const
+  0.00     21.59     0.00      100     0.00     0.00  Tester::startTimer()
+  0.00     21.59     0.00      100     0.00     0.00  Tester::stopTimer()
+  0.00     21.59     0.00      100     0.00     0.00  std::uniform_int_distribution<unsigned int>::param_type::b() const
+  0.00     21.59     0.00      100     0.00     0.00  unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&)
+  0.00     21.59     0.00      100     0.00     0.00  unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&)
+  0.00     21.59     0.00      100     0.00     0.00  std::enable_if<std::chrono::__is_duration<std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::value, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
+  0.00     21.59     0.00      100     0.00     0.00  std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
+  0.00     21.59     0.00      100     0.00     0.00  std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&)
+  0.00     21.59     0.00      100     0.00     0.00  std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
+  0.00     21.59     0.00        5     0.00     0.00  BigInt::deallocate()
+  0.00     21.59     0.00        5     0.00     0.00  BigInt::allocate(unsigned int)
+  0.00     21.59     0.00        5     0.00     0.00  BigInt::BigInt(unsigned int)
+  0.00     21.59     0.00        5     0.00     0.00  BigInt::~BigInt()
+  0.00     21.59     0.00        2     0.00     0.00  toInt(char const*)
+  0.00     21.59     0.00        2     0.00     0.00  std::__detail::_Mod<unsigned long, 2147483647ul, 1ul, 0ul, true, true>::__calc(unsigned long)
+  0.00     21.59     0.00        2     0.00     0.00  unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 1ul, 0ul>(unsigned long)
+  0.00     21.59     0.00        2     0.00     0.00  std::operator&(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+  0.00     21.59     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z5toIntPKc
+  0.00     21.59     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6BigInt21conversionLookupTableE
+  0.00     21.59     0.00        1     0.00     0.00  _GLOBAL__sub_I_main
+  0.00     21.59     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     21.59     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     21.59     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     21.59     0.00        1     0.00    21.53  Tester::testMulDiv(unsigned int, unsigned int)
+  0.00     21.59     0.00        1     0.00    21.53  Tester::pickYourFighter(char**, int)
+  0.00     21.59     0.00        1     0.00     0.00  Tester::Tester()
+  0.00     21.59     0.00        1     0.00     0.00  std::uniform_int_distribution<unsigned int>::param_type::param_type(unsigned int, unsigned int)
+  0.00     21.59     0.00        1     0.00     0.00  std::uniform_int_distribution<unsigned int>::uniform_int_distribution(unsigned int, unsigned int)
+  0.00     21.59     0.00        1     0.00     0.00  std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::seed(unsigned long)
+  0.00     21.59     0.00        1     0.00     0.00  std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::linear_congruential_engine(unsigned long)
+  0.00     21.59     0.00        1     0.00     0.00  std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_point()
+  0.00     21.59     0.00        1     0.00     0.00  std::chrono::duration_values<long>::zero()
+  0.00     21.59     0.00        1     0.00     0.00  std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero()
+  0.00     21.59     0.00        1     0.00     0.00  std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+  0.00     21.59     0.00        1     0.00     0.00  std::operator&=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags)
+  0.00     21.59     0.00        1     0.00     0.00  std::operator~(std::_Ios_Fmtflags)
+  0.00     21.59     0.00        1     0.00     0.00  std::operator|=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags)
+  0.00     21.59     0.00        1     0.00     0.00  std::operator|(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2021 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.05% of 21.59 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     99.7    0.00   21.53                 main [1]
+                0.00   21.53       1/1           Tester::pickYourFighter(char**, int) [3]
+                0.00    0.00       1/1           Tester::Tester() [62]
+-----------------------------------------------
+                0.00   21.53       1/1           Tester::pickYourFighter(char**, int) [3]
+[2]     99.7    0.00   21.53       1         Tester::testMulDiv(unsigned int, unsigned int) [2]
+                0.02   19.77     100/100         BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+                0.32    1.42     200/200         Tester::generate(BigInt&, int) [7]
+                0.00    0.00     100/100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [26]
+                0.00    0.00     100/100         Tester::startTimer() [41]
+                0.00    0.00     100/100         Tester::stopTimer() [42]
+                0.00    0.00       5/5           BigInt::BigInt(unsigned int) [50]
+                0.00    0.00       5/5           BigInt::~BigInt() [51]
+                0.00    0.00       1/1           std::uniform_int_distribution<unsigned int>::uniform_int_distribution(unsigned int, unsigned int) [64]
+-----------------------------------------------
+                0.00   21.53       1/1           main [1]
+[3]     99.7    0.00   21.53       1         Tester::pickYourFighter(char**, int) [3]
+                0.00   21.53       1/1           Tester::testMulDiv(unsigned int, unsigned int) [2]
+                0.00    0.00       2/2           toInt(char const*) [52]
+-----------------------------------------------
+                             2952300             BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+                0.02   19.77     100/100         Tester::testMulDiv(unsigned int, unsigned int) [2]
+[4]     91.7    0.02   19.77     100+2952300 BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+               14.80    0.00 1968300/1968300     BigInt::naiveMul(BigInt const&, BigInt const&) [5]
+                3.22    0.00 2952300/2952300     BigInt::operator+=(BigInt const&) [6]
+                0.86    0.00 1968200/1968200     BigInt::operator-=(BigInt const&) [10]
+                0.86    0.00 1340136/1340136     BigInt::negate() [11]
+                0.01    0.00 2952300/2952300     BigInt::clear() [20]
+                0.00    0.00 1968200/8856900     unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&) [23]
+                0.00    0.00 1968200/1968200     BigInt::operator=(BigInt const&) [25]
+                0.00    0.00 7872800/7872800     Trickster::Trickster(bool, unsigned int*, unsigned int) [34]
+                0.00    0.00 7872800/7872800     Trickster::~Trickster() [35]
+                0.00    0.00  984100/984100      unsigned int const& std::max<unsigned int>(unsigned int const&, unsigned int const&) [36]
+                             2952300             BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+-----------------------------------------------
+               14.80    0.00 1968300/1968300     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[5]     68.6   14.80    0.00 1968300         BigInt::naiveMul(BigInt const&, BigInt const&) [5]
+-----------------------------------------------
+                3.22    0.00 2952300/2952300     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[6]     14.9    3.22    0.00 2952300         BigInt::operator+=(BigInt const&) [6]
+                0.00    0.00 2952300/8856900     unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&) [23]
+-----------------------------------------------
+                0.32    1.42     200/200         Tester::testMulDiv(unsigned int, unsigned int) [2]
+[7]      8.1    0.32    1.42     200         Tester::generate(BigInt&, int) [7]
+                0.03    1.36 104857600/104857600     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [8]
+                0.02    0.01     200/200         std::uniform_int_distribution<int>::uniform_int_distribution(int, int) [17]
+-----------------------------------------------
+                0.03    1.36 104857600/104857600     Tester::generate(BigInt&, int) [7]
+[8]      6.4    0.03    1.36 104857600         int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [8]
+                1.01    0.35 104857600/104857600     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [9]
+-----------------------------------------------
+                1.01    0.35 104857600/104857600     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [8]
+[9]      6.3    1.01    0.35 104857600         int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [9]
+                0.11    0.18 104857600/104857700     std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()() [12]
+                0.05    0.00 104857600/104857600     std::uniform_int_distribution<int>::param_type::b() const [15]
+                0.01    0.00 209715200/209715200     std::uniform_int_distribution<int>::param_type::a() const [19]
+-----------------------------------------------
+                0.86    0.00 1968200/1968200     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[10]     4.0    0.86    0.00 1968200         BigInt::operator-=(BigInt const&) [10]
+                0.00    0.00 1968200/8856900     unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&) [23]
+-----------------------------------------------
+                0.86    0.00 1340136/1340136     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[11]     4.0    0.86    0.00 1340136         BigInt::negate() [11]
+-----------------------------------------------
+                0.00    0.00     100/104857700     unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [27]
+                0.11    0.18 104857600/104857700     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [9]
+[12]     1.3    0.11    0.18 104857700         std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()() [12]
+                0.04    0.15 104857700/104857700     unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 16807ul, 0ul>(unsigned long) [13]
+-----------------------------------------------
+                0.04    0.15 104857700/104857700     std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()() [12]
+[13]     0.8    0.04    0.15 104857700         unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 16807ul, 0ul>(unsigned long) [13]
+                0.15    0.00 104857700/104857700     std::__detail::_Mod<unsigned long, 2147483647ul, 16807ul, 0ul, true, true>::__calc(unsigned long) [14]
+-----------------------------------------------
+                0.15    0.00 104857700/104857700     unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 16807ul, 0ul>(unsigned long) [13]
+[14]     0.7    0.15    0.00 104857700         std::__detail::_Mod<unsigned long, 2147483647ul, 16807ul, 0ul, true, true>::__calc(unsigned long) [14]
+-----------------------------------------------
+                0.05    0.00 104857600/104857600     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [9]
+[15]     0.2    0.05    0.00 104857600         std::uniform_int_distribution<int>::param_type::b() const [15]
+-----------------------------------------------
+                                                 <spontaneous>
+[16]     0.1    0.03    0.00                 void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct_aux<char const*>(char const*, char const*, std::__false_type) [16]
+-----------------------------------------------
+                0.02    0.01     200/200         Tester::generate(BigInt&, int) [7]
+[17]     0.1    0.02    0.01     200         std::uniform_int_distribution<int>::uniform_int_distribution(int, int) [17]
+                0.01    0.00     200/200         std::uniform_int_distribution<int>::param_type::param_type(int, int) [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[18]     0.1    0.02    0.00                 bool __gnu_cxx::__is_null_pointer<char const>(char const*) [18]
+-----------------------------------------------
+                0.01    0.00 209715200/209715200     int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [9]
+[19]     0.0    0.01    0.00 209715200         std::uniform_int_distribution<int>::param_type::a() const [19]
+-----------------------------------------------
+                0.01    0.00 2952300/2952300     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[20]     0.0    0.01    0.00 2952300         BigInt::clear() [20]
+-----------------------------------------------
+                0.01    0.00     200/200         std::uniform_int_distribution<int>::uniform_int_distribution(int, int) [17]
+[21]     0.0    0.01    0.00     200         std::uniform_int_distribution<int>::param_type::param_type(int, int) [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[22]     0.0    0.01    0.00                 void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) [22]
+-----------------------------------------------
+                0.00    0.00 1968200/8856900     BigInt::operator=(BigInt const&) [25]
+                0.00    0.00 1968200/8856900     BigInt::operator-=(BigInt const&) [10]
+                0.00    0.00 1968200/8856900     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+                0.00    0.00 2952300/8856900     BigInt::operator+=(BigInt const&) [6]
+[23]     0.0    0.01    0.00 8856900         unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&) [23]
+-----------------------------------------------
+                                                 <spontaneous>
+[24]     0.0    0.01    0.00                 std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_S_copy_chars(char*, char const*, char const*) [24]
+-----------------------------------------------
+                0.00    0.00 1968200/1968200     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[25]     0.0    0.00    0.00 1968200         BigInt::operator=(BigInt const&) [25]
+                0.00    0.00 1968200/8856900     unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&) [23]
+-----------------------------------------------
+                0.00    0.00     100/100         Tester::testMulDiv(unsigned int, unsigned int) [2]
+[26]     0.0    0.00    0.00     100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [26]
+                0.00    0.00     100/100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [27]
+-----------------------------------------------
+                0.00    0.00     100/100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [26]
+[27]     0.0    0.00    0.00     100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [27]
+                0.00    0.00     100/104857700     std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()() [12]
+                0.00    0.00     200/200         std::uniform_int_distribution<unsigned int>::param_type::a() const [39]
+                0.00    0.00     100/100         std::uniform_int_distribution<unsigned int>::param_type::b() const [43]
+-----------------------------------------------
+                0.00    0.00 7872800/7872800     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[34]     0.0    0.00    0.00 7872800         Trickster::Trickster(bool, unsigned int*, unsigned int) [34]
+-----------------------------------------------
+                0.00    0.00 7872800/7872800     BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[35]     0.0    0.00    0.00 7872800         Trickster::~Trickster() [35]
+-----------------------------------------------
+                0.00    0.00  984100/984100      BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [4]
+[36]     0.0    0.00    0.00  984100         unsigned int const& std::max<unsigned int>(unsigned int const&, unsigned int const&) [36]
+-----------------------------------------------
+                0.00    0.00     100/400         Tester::stopTimer() [42]
+                0.00    0.00     100/400         std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [45]
+                0.00    0.00     200/400         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [47]
+[37]     0.0    0.00    0.00     400         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const [37]
+-----------------------------------------------
+                0.00    0.00       1/201         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero() [69]
+                0.00    0.00     100/201         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [47]
+                0.00    0.00     100/201         std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [45]
+[38]     0.0    0.00    0.00     201         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&) [38]
+-----------------------------------------------
+                0.00    0.00     200/200         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [27]
+[39]     0.0    0.00    0.00     200         std::uniform_int_distribution<unsigned int>::param_type::a() const [39]
+-----------------------------------------------
+                0.00    0.00     200/200         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&) [46]
+[40]     0.0    0.00    0.00     200         std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_since_epoch() const [40]
+-----------------------------------------------
+                0.00    0.00     100/100         Tester::testMulDiv(unsigned int, unsigned int) [2]
+[41]     0.0    0.00    0.00     100         Tester::startTimer() [41]
+-----------------------------------------------
+                0.00    0.00     100/100         Tester::testMulDiv(unsigned int, unsigned int) [2]
+[42]     0.0    0.00    0.00     100         Tester::stopTimer() [42]
+                0.00    0.00     100/100         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&) [46]
+                0.00    0.00     100/100         std::enable_if<std::chrono::__is_duration<std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::value, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [44]
+                0.00    0.00     100/400         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const [37]
+-----------------------------------------------
+                0.00    0.00     100/100         unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [27]
+[43]     0.0    0.00    0.00     100         std::uniform_int_distribution<unsigned int>::param_type::b() const [43]
+-----------------------------------------------
+                0.00    0.00     100/100         Tester::stopTimer() [42]
+[44]     0.0    0.00    0.00     100         std::enable_if<std::chrono::__is_duration<std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::value, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [44]
+                0.00    0.00     100/100         std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [45]
+-----------------------------------------------
+                0.00    0.00     100/100         std::enable_if<std::chrono::__is_duration<std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::value, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [44]
+[45]     0.0    0.00    0.00     100         std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [45]
+                0.00    0.00     100/400         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const [37]
+                0.00    0.00     100/201         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&) [38]
+-----------------------------------------------
+                0.00    0.00     100/100         Tester::stopTimer() [42]
+[46]     0.0    0.00    0.00     100         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&) [46]
+                0.00    0.00     200/200         std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_since_epoch() const [40]
+                0.00    0.00     100/100         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [47]
+-----------------------------------------------
+                0.00    0.00     100/100         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&) [46]
+[47]     0.0    0.00    0.00     100         std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) [47]
+                0.00    0.00     200/400         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const [37]
+                0.00    0.00     100/201         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&) [38]
+-----------------------------------------------
+                0.00    0.00       5/5           BigInt::~BigInt() [51]
+[48]     0.0    0.00    0.00       5         BigInt::deallocate() [48]
+-----------------------------------------------
+                0.00    0.00       5/5           BigInt::BigInt(unsigned int) [50]
+[49]     0.0    0.00    0.00       5         BigInt::allocate(unsigned int) [49]
+-----------------------------------------------
+                0.00    0.00       5/5           Tester::testMulDiv(unsigned int, unsigned int) [2]
+[50]     0.0    0.00    0.00       5         BigInt::BigInt(unsigned int) [50]
+                0.00    0.00       5/5           BigInt::allocate(unsigned int) [49]
+-----------------------------------------------
+                0.00    0.00       5/5           Tester::testMulDiv(unsigned int, unsigned int) [2]
+[51]     0.0    0.00    0.00       5         BigInt::~BigInt() [51]
+                0.00    0.00       5/5           BigInt::deallocate() [48]
+-----------------------------------------------
+                0.00    0.00       2/2           Tester::pickYourFighter(char**, int) [3]
+[52]     0.0    0.00    0.00       2         toInt(char const*) [52]
+-----------------------------------------------
+                0.00    0.00       2/2           unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 1ul, 0ul>(unsigned long) [54]
+[53]     0.0    0.00    0.00       2         std::__detail::_Mod<unsigned long, 2147483647ul, 1ul, 0ul, true, true>::__calc(unsigned long) [53]
+-----------------------------------------------
+                0.00    0.00       2/2           std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::seed(unsigned long) [65]
+[54]     0.0    0.00    0.00       2         unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 1ul, 0ul>(unsigned long) [54]
+                0.00    0.00       2/2           std::__detail::_Mod<unsigned long, 2147483647ul, 1ul, 0ul, true, true>::__calc(unsigned long) [53]
+-----------------------------------------------
+                0.00    0.00       1/2           std::operator&=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [71]
+                0.00    0.00       1/2           std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [70]
+[55]     0.0    0.00    0.00       2         std::operator&(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [55]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [215]
+[56]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z5toIntPKc [56]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [61]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [215]
+[57]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN6BigInt21conversionLookupTableE [57]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [59]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [215]
+[58]     0.0    0.00    0.00       1         _GLOBAL__sub_I_main [58]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [60]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN6BigInt21conversionLookupTableE [57]
+[59]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [59]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I_main [58]
+[60]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [60]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z5toIntPKc [56]
+[61]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [61]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[62]     0.0    0.00    0.00       1         Tester::Tester() [62]
+                0.00    0.00       1/1           std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_point() [67]
+                0.00    0.00       1/1           std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::linear_congruential_engine(unsigned long) [66]
+-----------------------------------------------
+                0.00    0.00       1/1           std::uniform_int_distribution<unsigned int>::uniform_int_distribution(unsigned int, unsigned int) [64]
+[63]     0.0    0.00    0.00       1         std::uniform_int_distribution<unsigned int>::param_type::param_type(unsigned int, unsigned int) [63]
+-----------------------------------------------
+                0.00    0.00       1/1           Tester::testMulDiv(unsigned int, unsigned int) [2]
+[64]     0.0    0.00    0.00       1         std::uniform_int_distribution<unsigned int>::uniform_int_distribution(unsigned int, unsigned int) [64]
+                0.00    0.00       1/1           std::uniform_int_distribution<unsigned int>::param_type::param_type(unsigned int, unsigned int) [63]
+-----------------------------------------------
+                0.00    0.00       1/1           std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::linear_congruential_engine(unsigned long) [66]
+[65]     0.0    0.00    0.00       1         std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::seed(unsigned long) [65]
+                0.00    0.00       2/2           unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 1ul, 0ul>(unsigned long) [54]
+-----------------------------------------------
+                0.00    0.00       1/1           Tester::Tester() [62]
+[66]     0.0    0.00    0.00       1         std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::linear_congruential_engine(unsigned long) [66]
+                0.00    0.00       1/1           std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::seed(unsigned long) [65]
+-----------------------------------------------
+                0.00    0.00       1/1           Tester::Tester() [62]
+[67]     0.0    0.00    0.00       1         std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_point() [67]
+                0.00    0.00       1/1           std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero() [69]
+-----------------------------------------------
+                0.00    0.00       1/1           std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero() [69]
+[68]     0.0    0.00    0.00       1         std::chrono::duration_values<long>::zero() [68]
+-----------------------------------------------
+                0.00    0.00       1/1           std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_point() [67]
+[69]     0.0    0.00    0.00       1         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero() [69]
+                0.00    0.00       1/1           std::chrono::duration_values<long>::zero() [68]
+                0.00    0.00       1/201         std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&) [38]
+-----------------------------------------------
+                0.00    0.00       1/1           std::fixed(std::ios_base&) [204]
+[70]     0.0    0.00    0.00       1         std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [70]
+                0.00    0.00       1/1           std::operator~(std::_Ios_Fmtflags) [72]
+                0.00    0.00       1/1           std::operator&=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [71]
+                0.00    0.00       1/2           std::operator&(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [55]
+                0.00    0.00       1/1           std::operator|=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [73]
+-----------------------------------------------
+                0.00    0.00       1/1           std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [70]
+[71]     0.0    0.00    0.00       1         std::operator&=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [71]
+                0.00    0.00       1/2           std::operator&(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [55]
+-----------------------------------------------
+                0.00    0.00       1/1           std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [70]
+[72]     0.0    0.00    0.00       1         std::operator~(std::_Ios_Fmtflags) [72]
+-----------------------------------------------
+                0.00    0.00       1/1           std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [70]
+[73]     0.0    0.00    0.00       1         std::operator|=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [73]
+                0.00    0.00       1/1           std::operator|(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [74]
+-----------------------------------------------
+                0.00    0.00       1/1           std::operator|=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags) [73]
+[74]     0.0    0.00    0.00       1         std::operator|(std::_Ios_Fmtflags, std::_Ios_Fmtflags) [74]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2021 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [56] _GLOBAL__sub_I__Z5toIntPKc [62] Tester::Tester()   [68] std::chrono::duration_values<long>::zero()
+  [57] _GLOBAL__sub_I__ZN6BigInt21conversionLookupTableE [34] Trickster::Trickster(bool, unsigned int*, unsigned int) [45] std::chrono::duration<long, std::ratio<1l, 1000000000l> > std::chrono::__duration_cast_impl<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::ratio<1l, 1l>, long, true, true>::__cast<long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
+  [58] _GLOBAL__sub_I_main    [35] Trickster::~Trickster() [69] std::chrono::duration<long, std::ratio<1l, 1000000000l> >::zero()
+  [59] __static_initialization_and_destruction_0(int, int) [18] bool __gnu_cxx::__is_null_pointer<char const>(char const*) [38] std::chrono::duration<long, std::ratio<1l, 1000000000l> >::duration<long, void>(long const&)
+  [60] __static_initialization_and_destruction_0(int, int) [19] std::uniform_int_distribution<int>::param_type::a() const [46] std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&, std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > > const&)
+  [61] __static_initialization_and_destruction_0(int, int) [15] std::uniform_int_distribution<int>::param_type::b() const [47] std::common_type<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::operator-<long, std::ratio<1l, 1000000000l>, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&, std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
+  [52] toInt(char const*)     [39] std::uniform_int_distribution<unsigned int>::param_type::a() const [22] void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag)
+  [48] BigInt::deallocate()   [43] std::uniform_int_distribution<unsigned int>::param_type::b() const [24] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_S_copy_chars(char*, char const*, char const*)
+  [20] BigInt::clear()        [40] std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_since_epoch() const [16] void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct_aux<char const*>(char const*, char const*, std::__false_type)
+  [11] BigInt::negate()       [37] std::chrono::duration<long, std::ratio<1l, 1000000000l> >::count() const [14] std::__detail::_Mod<unsigned long, 2147483647ul, 16807ul, 0ul, true, true>::__calc(unsigned long)
+  [49] BigInt::allocate(unsigned int) [21] std::uniform_int_distribution<int>::param_type::param_type(int, int) [53] std::__detail::_Mod<unsigned long, 2147483647ul, 1ul, 0ul, true, true>::__calc(unsigned long)
+   [5] BigInt::naiveMul(BigInt const&, BigInt const&) [17] std::uniform_int_distribution<int>::uniform_int_distribution(int, int) [13] unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 16807ul, 0ul>(unsigned long)
+   [4] BigInt::karatsuba(BigInt const&, BigInt const&, BigInt&) [8] int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [54] unsigned long std::__detail::__mod<unsigned long, 2147483647ul, 1ul, 0ul>(unsigned long)
+  [50] BigInt::BigInt(unsigned int) [9] int std::uniform_int_distribution<int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<int>::param_type const&) [70] std::ios_base::setf(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+  [51] BigInt::~BigInt()      [63] std::uniform_int_distribution<unsigned int>::param_type::param_type(unsigned int, unsigned int) [36] unsigned int const& std::max<unsigned int>(unsigned int const&, unsigned int const&)
+  [25] BigInt::operator=(BigInt const&) [64] std::uniform_int_distribution<unsigned int>::uniform_int_distribution(unsigned int, unsigned int) [23] unsigned int const& std::min<unsigned int>(unsigned int const&, unsigned int const&)
+  [10] BigInt::operator-=(BigInt const&) [26] unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&) [71] std::operator&=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags)
+   [6] BigInt::operator+=(BigInt const&) [27] unsigned int std::uniform_int_distribution<unsigned int>::operator()<std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul> >(std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>&, std::uniform_int_distribution<unsigned int>::param_type const&) [55] std::operator&(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+  [41] Tester::startTimer()   [65] std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::seed(unsigned long) [72] std::operator~(std::_Ios_Fmtflags)
+   [2] Tester::testMulDiv(unsigned int, unsigned int) [66] std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::linear_congruential_engine(unsigned long) [73] std::operator|=(std::_Ios_Fmtflags&, std::_Ios_Fmtflags)
+   [3] Tester::pickYourFighter(char**, int) [12] std::linear_congruential_engine<unsigned long, 16807ul, 0ul, 2147483647ul>::operator()() [74] std::operator|(std::_Ios_Fmtflags, std::_Ios_Fmtflags)
+   [7] Tester::generate(BigInt&, int) [67] std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::time_point()
+  [42] Tester::stopTimer()    [44] std::enable_if<std::chrono::__is_duration<std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::value, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >::type std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1l, 1000000000l> >, long, std::ratio<1l, 1000000000l> >(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&)
