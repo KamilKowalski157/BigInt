@@ -833,6 +833,7 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
         xn2.karatsuba(buff, (*this), kbuff); // optimize to use min alias
 
         xn2 = (xn2 >> (size * 32));
+        //xn2>>=(size*32);
         if (xn2 == (*this))
         {
             break;
@@ -843,14 +844,71 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
 }
 void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus)
 {
+    clear();
+    BigInt pureMul[] = {{size}, {size}};
+    BigInt dirtyProd[] = {{size}, {size}};
+    dirtyProd[0].digits[0] = pureMul[0].digits[0] = dirtyProd[1].digits[0] = pureMul[1].digits[0] = 1;
+
+    pureMul[1] = pureMul[0] = base;
+
+    BigInt kbuff(size * 2); // karatsuba buffer
+
+    BigInt invBuffer(size * 2);
+    BigInt inverse(size);
+    inverse.computeInverse(modulus);
+
+    int a = 0;
+    int b = 0;
+    for (; exponent != 0; exponent >>= 1, a = !a)
+    {
+        if (exponent % 2)
+        {
+            dirtyProd[b].clear();
+            dirtyProd[b].karatsuba(pureMul[!a], dirtyProd[!b], kbuff);
+
+            invBuffer.clear();
+            invBuffer.karatsuba(inverse, dirtyProd[b], kbuff);
+            invBuffer = (invBuffer >> (size * 32));
+            dirtyProd[!b].clear();
+            dirtyProd[!b].karatsuba(invBuffer, modulus, kbuff);
+            dirtyProd[b] -= dirtyProd[!b];
+            b = !b;
+        }
+        pureMul[a].clear();
+        pureMul[a].karatsuba(pureMul[!a], pureMul[!a], kbuff);
+
+        invBuffer.clear();
+        invBuffer.karatsuba(inverse, pureMul[a], kbuff);
+        invBuffer = (invBuffer >> (size * 32));
+        pureMul[!a].clear();
+        pureMul[!a].karatsuba(invBuffer, modulus, kbuff);
+        pureMul[a] -= pureMul[!a];
+    }
+    (*this) = dirtyProd[!b];
 }
 void BigInt::pow(const BigInt &base, uint32_t exponent)
 {
-    BigInt buff1((exponent * base.getActualSize() + 31) / 32);
-    BigInt buff2(buff1.size);
-    BigInt kbuff(buff1.size);
-    for (; exponent != 0; exponent >>= 1)
+    clear();
+    BigInt pureMul[] = {{size}, {size}};
+    BigInt dirtyProd[] = {{size}, {size}};
+    dirtyProd[0].digits[0] = pureMul[0].digits[0] = dirtyProd[1].digits[0] = pureMul[1].digits[0] = 1;
+
+    pureMul[1] = pureMul[0] = base;
+
+    BigInt kbuff(size * 2); // karatsuba buffer
+
+    int a = 0;
+    int b = 0;
+    for (; exponent != 0; exponent >>= 1, a = !a)
     {
-        buff1.karatsuba(buff1, base, kbuff);
+        if (exponent % 2)
+        {
+            dirtyProd[b].clear();
+            dirtyProd[b].karatsuba(pureMul[!a], dirtyProd[!b], kbuff);
+            b = !b;
+        }
+        pureMul[a].clear();
+        pureMul[a].karatsuba(pureMul[!a], pureMul[!a], kbuff);
     }
+    (*this) = dirtyProd[!b];
 }

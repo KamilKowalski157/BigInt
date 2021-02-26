@@ -80,9 +80,9 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
 
         b = a;
         startTimer();
-        a = (a << shift);
+        a <<= (shift);
         time += stopTimer();
-        a = (a >> shift);
+        a >>= (shift);
 
         if (a != b)
         {
@@ -103,8 +103,8 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 
     BigInt a(size);
     BigInt b(size);
-    BigInt c(size);
-    BigInt d(size*2);
+    BigInt c(size * 2);
+    BigInt d(size * 2);
     BigInt f(size * 2);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
@@ -112,31 +112,19 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     for (int i = 0; i < n; i++)
     {
         size1 = dist(engine);
-        generate(a, size/2);
-        generate(b, size/2);
+        generate(a, size);
+        generate(b, size);
         //c.naiveMul(a,b);
         //c = a;
         //c.naiveMul(a,b);
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
+        c.karatsuba(a, b, d);
         startTimer();
-        //c = a*b;
-        //c = a * b;
-        c.karatsuba(a,b,d);
+        d = c / b;
         time += stopTimer();
-        //c = a*b;
-        //c.naiveMul(a,b);
-        //d = c / b;
-        //startTimer();
-        //c.naiveMul(a,b);
-        //c = c*b;
-        //c.karatsuba(a, b, f);
-        //d = c/b;
-        //d.naiveDiv(c,b);
-        //time += stopTimer();
-
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        continue;
+        //continue;
 
         if (d != a)
         {
@@ -147,14 +135,39 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
             continue;
         }
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        std::cout << i << "/" << n << "\r" << std::flush;
     }
-    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     if (failures != 0)
     {
-        std::cout << "test failed";
+        //    std::cout << "test failed";
     }
-    std::cout << std::fixed << (time / n) << std::endl;
+    //std::cout << std::fixed << (time / n) << std::endl;
+    return failures;
+}
+
+unsigned int Tester::testFunctions(unsigned int n, unsigned int size)
+{
+    unsigned int failures = 0;
+
+    BigInt a(size);
+    BigInt b(size);
+    BigInt modulus(size);
+
+    unsigned int exp;
+    std::uniform_int_distribution dist(1, 10);
+
+    for (int i = 0; i < n; i++)
+    {
+        exp = dist(engine);
+        generate(b, 1);
+        generate(modulus, 1);
+        std::cout << b;
+        //a.pow(b, exp);
+        a.modExp(b, exp, modulus);
+        std::cout << " ^ " << exp << " % " << modulus << " = " << a << std::endl;
+    }
     return failures;
 }
 
@@ -162,7 +175,7 @@ void Tester::manual()
 {
     BigInt a("20");
     BigInt b("1463809713245893462108216898923");
-    std::cout << (a*b)<< std::endl;
+    std::cout << (a * b) << std::endl;
     /*for(int i = 0;i<16;i++)
     {
         for(int j = 0;j<16;j++)
@@ -253,6 +266,10 @@ void Tester::pickYourFighter(char **argv, int argc)
     else if (!strcmp(argv[0], "man"))
     {
         manual();
+    }
+    else if (!strcmp(argv[0], "fnc"))
+    {
+        testFunctions(n, size);
     }
     else
     {

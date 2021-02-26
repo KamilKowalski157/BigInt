@@ -52,7 +52,7 @@ class BigInt
                                                                        n(std::min((long)_size, digits - temp.digits)),
                                                                        owner(false),
                                                                        sign(temp.sign)*/
-    BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.size, pos)),
+    BigInt(const BigInt &temp, unsigned int pos, unsigned int _size) : digits(temp.digits + std::min(temp.size, pos)), // Deprecated
                                                                        size(std::min((long)_size, temp.size - (digits - temp.digits))),
                                                                        sign(temp.sign)
     {
@@ -61,7 +61,7 @@ class BigInt
 public:
     const uint32_t size = 0;
 
-    BigInt(int a = 1) : size(allocate(a)) { sign = 0; }
+    BigInt(uint32_t a = 1) : size(allocate(a)) { sign = 0; }
     BigInt(const std::string &decStr);
     BigInt(BigInt &&b);
     BigInt(const BigInt &b);
