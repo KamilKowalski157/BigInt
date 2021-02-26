@@ -122,10 +122,10 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //c.karatsuba(a, b, d);
         startTimer();
         c.karatsuba(a, b, d);
-        //d = c / b;
+        d = c / b;
         time += stopTimer();
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        continue;
+        //continue;
 
         if (d != a)
         {
@@ -138,13 +138,13 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //std::cout << i << "/" << n << "\r" << std::flush;
     }
-    //std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    //std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
+    std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
+    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
     if (failures != 0)
     {
             std::cout << "test failed";
     }
-    std::cout << std::fixed << (time / n) << std::endl;
+    //std::cout << std::fixed << (time / n) << std::endl;
     return failures;
 }
 
@@ -180,7 +180,7 @@ void Tester::manual()
 {
     BigInt a("20");
     BigInt b("1463809713245893462108216898923");
-    std::cout << (a * b) << std::endl;
+    std::cout << (a - b) << std::endl;
     /*for(int i = 0;i<16;i++)
     {
         for(int j = 0;j<16;j++)

@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${workspaceFolderBasename}",
-            "args": ["'fnc'","'1'","'1024'"],
+            "args": ["'m&d'","'1'","'128'"],
             //"args" : ["'man'"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

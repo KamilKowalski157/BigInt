@@ -551,14 +551,14 @@ BigInt &BigInt::operator+=(const BigInt &b)
     for (i = 0; i < min_size; ++i)
     {
         buffer += digits[i];
-        buffer += ~b.digits[i];
+        buffer += b.digits[i];
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    for(;i<size&&buffer;++i)
+    for(;i<size;++i)
     {
         buffer += digits[i];
-        buffer += (~0)*b.sign;
+        buffer += ((uint32_t)(~0)*(b.sign==1));
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -577,10 +577,10 @@ BigInt &BigInt::operator-=(const BigInt &b)
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    for(;i<size&&buffer;++i)
+    for(;i<size;++i)
     {
         buffer += digits[i];
-        buffer += (~0)*b.sign;
+        buffer += ((uint32_t)(~0)*(b.sign==0));
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -837,9 +837,9 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     for (i = 0;; ++i)
     {
         //std::cout << i << " iteration\r" << std::flush;
-        //xn2 = c;
+        xn2 = c;
         buff.clear();
-        buff.karatsuba(c, (*this), kbuff); // optimize to use min alias
+        buff.karatsuba(xn2, (*this), kbuff); // optimize to use min alias
 
         //xn2.clear();
         xn2.digits[size] = 2;

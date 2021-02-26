@@ -4,10 +4,10 @@ objects := $(sources:%.cpp=%.o)
 target := $(shell pwd | xargs basename)
 
 ${target}: ${objects}
-	g++ -pg -std=c++20 ${objects}  -o ${target}
+	g++ -g -std=c++20 ${objects}  -o ${target}
 
 %.o: %.cpp ${headers}
-	g++ -pg -std=c++20 -c $<
+	g++ -g -std=c++20 -c $<
 
 clean:
 	rm -f *.o
