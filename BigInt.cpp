@@ -546,8 +546,8 @@ BigInt &BigInt::operator>>=(int shift)
 BigInt &BigInt::operator+=(const BigInt &b)
 {
     buffer = 0;
-    int i,min_size;
-    min_size = std::min(size,b.size);
+    int i, min_size;
+    min_size = std::min(size, b.size);
     for (i = 0; i < min_size; ++i)
     {
         buffer += digits[i];
@@ -555,10 +555,10 @@ BigInt &BigInt::operator+=(const BigInt &b)
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    for(;i<size;++i)
+    for (; i < size; ++i)
     {
         buffer += digits[i];
-        buffer += ((uint32_t)(~0)*(b.sign==1));
+        buffer += ((uint32_t)(~0) * (b.sign == 1));
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -568,8 +568,8 @@ BigInt &BigInt::operator+=(const BigInt &b)
 BigInt &BigInt::operator-=(const BigInt &b)
 {
     buffer = (uint32_t)(1);
-    int i,min_size;
-    min_size = std::min(size,b.size);
+    int i, min_size;
+    min_size = std::min(size, b.size);
     for (i = 0; i < min_size; ++i)
     {
         buffer += digits[i];
@@ -577,10 +577,10 @@ BigInt &BigInt::operator-=(const BigInt &b)
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
-    for(;i<size;++i)
+    for (; i < size; ++i)
     {
         buffer += digits[i];
-        buffer += ((uint32_t)(~0)*(b.sign==0));
+        buffer += ((uint32_t)(~0) * (b.sign == 0));
         digits[i] = buffer;
         buffer = (buffer >> (sizeof(uint32_t) * 8));
     }
@@ -611,6 +611,7 @@ BigInt BigInt::operator/(const BigInt &b) const
         return a;
     }
     c.computeInverse(aliasb);
+    uint32_t shift = (size * 32 - c.buffer);
     a = c * aliasa;
     if (signb)
     {
@@ -625,7 +626,7 @@ BigInt BigInt::operator/(const BigInt &b) const
         a.negate();
     }
     aliasa.digits = aliasb.digits = nullptr;
-    return (a >> (size * 32)); // + BigInt("1") * buffer;
+    return (a >> shift); // + BigInt("1") * buffer;
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -805,57 +806,68 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     {
         throw std::exception();
     }
-    int position = (c.getActualSize() + 31) / 32;
+    Trickster cMask(c.sign, c.digits, c.size);
+    int position = c.getActualSize();
+    cMask.bint <<= (c.size * 32 - position);
 
-    if (c.size == 1 && size == 2)
-    {
-        buffer = 1;
-        buffer = (buffer << (sizeof(uint64_t) * 8 - 1));
-        buffer /= (c.digits[0] >> 1);
-        digits[0] = buffer;
-        digits[1] = (buffer >> (sizeof(uint32_t) * 8));
-    }
-    else
-    {
-        //Aproximation part
-
-        BigInt a(*this, 0, std::max(2U, (size - (size / 2))));
-        BigInt b(c, position / 2, position - position / 2);
-        a.computeInverse(b);
-
-        (*this) <<= ((size)*32 - c.getActualSize() - a.getActualSize() + 1);
-        a.digits = b.digits = nullptr;
-    }
+    buffer = 1;
+    buffer = (buffer << (sizeof(uint64_t) * 8 - 1));
+    buffer /= (c.digits[c.size - 1]);
+    digits[0] = (buffer << 1);
+    digits[1] = (buffer >> (sizeof(uint32_t) * 8 - 1));
 
     BigInt xn2(2 * size);
     BigInt kbuff(4 * size);
     BigInt buff(2 * size);
 
+    Trickster xn1Alias(sign, digits, 2);
+    Trickster xn2Alias(xn2.sign, xn2.digits, 4);
+    Trickster invAlias(c.sign, c.digits + c.size - 1, 1);
+    Trickster buffAlias(buff.sign, buff.digits, 4);
     //std::cout << " k " << size << " n: " << size << " a.n: " << size << " res.n: " << xn2.size << std::endl;
 
+    bool invDouble = false;
+    bool basDouble = false;
+
     int i;
-    for (i = 0;; ++i)
+    for(i=0;;++i)
     {
-        //std::cout << i << " iteration\r" << std::flush;
-        xn2 = c;
-        buff.clear();
-        buff.karatsuba(xn2, (*this), kbuff); // optimize to use min alias
+        std::cout << i << " iteration\r" << std::flush;
+        xn2Alias.bint = invAlias.bint;
+        buffAlias.bint.clear();
+        buffAlias.bint.karatsuba(invAlias.bint, xn1Alias.bint, kbuff); // optimize to use min alias
 
-        //xn2.clear();
-        xn2.digits[size] = 2;
-        xn2 -= buff;
-        buff = xn2;
-        xn2.clear();
-        xn2.karatsuba(buff, (*this), kbuff); // optimize to use min alias
+        xn2Alias.bint.digits[xn1Alias.bint.size] = 2;
+        xn2Alias.bint -= buffAlias.bint;
+        buffAlias.bint = xn2Alias.bint;
+        xn2Alias.bint.clear();
+        xn2Alias.bint.karatsuba(buffAlias.bint, xn1Alias.bint, kbuff); // optimize to use min alias
 
-        xn2>>=(size*32);
-        if (xn2 == (*this))
+        xn2Alias.bint >>= (xn1Alias.bint.size * 32);
+        if (xn2Alias.bint == xn1Alias.bint)
         {
-            break;
+            invDouble = invAlias.bint.size != c.size;
+            basDouble = xn1Alias.bint.size != size;
+            if (!invDouble && !basDouble)
+            {
+                break;
+            }
+            xn1Alias.fields.size *= 2;
+            xn2Alias.fields.size *= 2;
+            buffAlias.fields.size *= 2;
+            xn1Alias.bint <<= (xn1Alias.bint.size*16 - invAlias.bint.size*32);
+            invAlias.fields.size *= (1 + invDouble);
+
+            invAlias.fields.digits = c.digits + c.size - invAlias.fields.size;
+            i= 0;
+            std::cout<<"\n";
+            continue;
         }
-        (*this) = xn2;
+        xn1Alias.bint = xn2Alias.bint;
     }
-    //std::cout<<"\n";
+
+    cMask.bint >>= (c.size * 32 - position);
+    buffer = (c.size * 32 - position);
 }
 void BigInt::modExp(const BigInt &base, uint32_t exponent, const BigInt &modulus) // Produces overflow for max value!!!!
 {

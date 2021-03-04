@@ -99,7 +99,7 @@ unsigned int Tester::testShift(unsigned int n, unsigned int size) // Manual
 }
 unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
 {
-    unsigned int failures = 0;
+    unsigned int successes = 0;
 
     BigInt a(size);
     BigInt b(size);
@@ -120,32 +120,35 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         //c.karatsuba(a, b, d);
-        startTimer();
         c.karatsuba(a, b, d);
+        startTimer();
         d = c / b;
         time += stopTimer();
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        //continue;
 
         if (d != a)
         {
-            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            std::cout << "c: " << c << std::endl;
-            std::cout << "d: " << d << std::endl;
-            failures++;
+            //std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            //std::cout << "c: " << c << std::endl;
+            //std::cout << "d: " << d << std::endl;
             continue;
         }
+        else
+        {
+            successes++;
+        }
+        
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //std::cout << i << "/" << n << "\r" << std::flush;
     }
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
-    std::cout << (n - failures) << " / " << n << " trials passed" << std::endl;
-    if (failures != 0)
+    std::cout << (successes) << " / " << n << " trials passed" << std::endl;
+    if (successes != n)
     {
             std::cout << "test failed";
     }
     //std::cout << std::fixed << (time / n) << std::endl;
-    return failures;
+    return successes;
 }
 
 unsigned int Tester::testFunctions(unsigned int n, unsigned int size)
