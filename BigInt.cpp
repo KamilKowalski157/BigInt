@@ -595,7 +595,7 @@ BigInt BigInt::operator/(const BigInt &b) const
         throw std::exception();
     }
     BigInt a(size * 2);
-    BigInt c(size);
+    BigInt c(std::max(size, b.size * 2));
     BigInt aliasa((*this), 0, size);
     BigInt aliasb(b, 0, b.size);
     bool signa = aliasa.abs();
@@ -611,7 +611,7 @@ BigInt BigInt::operator/(const BigInt &b) const
         return a;
     }
     c.computeInverse(aliasb);
-    uint32_t shift = (size * 32 - c.buffer);
+    uint32_t shift = (c.size * 32 - c.buffer);
     a = c * aliasa;
     if (signb)
     {
@@ -678,7 +678,13 @@ void BigInt::naiveMul(const BigInt &a, const BigInt &b)
             digits[i + j] = buffer;
             buffer = (buffer >> (sizeof(uint32_t) * 8));
         }
-        digits[(i + j) % size] += buffer * ((i + j) < size);
+        for (; (j + i) < size && buffer; ++j)
+        {
+            buffer += digits[i + j];
+            digits[i + j] = buffer;
+            buffer = (buffer >> (sizeof(uint32_t) * 8));
+        }
+        sign = (sign + buffer) & 1;
     }
 }
 void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should not modify its parameters

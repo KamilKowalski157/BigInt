@@ -104,7 +104,7 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
     BigInt a(size);
     BigInt b(size);
     BigInt c(size * 2);
-    BigInt d(size * 2);
+    BigInt d(size * 4);
     BigInt f(size * 2);
     auto dist = std::uniform_int_distribution(1U, size - 1);
     unsigned int size1;
@@ -120,16 +120,16 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
         //continue;
         //c.karatsuba(a, b, d);
+        c.clear();
         c.karatsuba(a, b, d);
         startTimer();
         d = c / b;
         time += stopTimer();
-        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
 
         if (d != a)
         {
             std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            std::cout<<"case: "<<i<<std::endl;
             std::cout << "c: " << c << std::endl;
             std::cout << "d: " << d << std::endl;
             continue;
@@ -140,13 +140,13 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         }
         
         //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
-        //std::cout << i << "/" << n << "\r" << std::flush;
+        std::cout << i << "/" << n << "\r" << std::flush;
     }
     std::cout << time << " microseconds elapsed. Executed " << n << " trials, which gives average of " << time / n << " microseconds per trial" << std::endl;
     std::cout << (successes) << " / " << n << " trials passed" << std::endl;
     if (successes != n)
     {
-            std::cout << "test failed";
+    //        std::cout << "test failed";
     }
     //std::cout << std::fixed << (time / n) << std::endl;
     return successes;
@@ -183,8 +183,8 @@ unsigned int Tester::testFunctions(unsigned int n, unsigned int size)
 void Tester::manual()
 {
     BigInt a("20");
-    BigInt b("1463809713245893462108216898923");
-    std::cout << (a - b) << std::endl;
+    BigInt b("4");
+    std::cout << (a / b) << std::endl;
     /*for(int i = 0;i<16;i++)
     {
         for(int j = 0;j<16;j++)
