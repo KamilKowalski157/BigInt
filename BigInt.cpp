@@ -626,7 +626,7 @@ BigInt BigInt::operator/(const BigInt &b) const
         a.negate();
     }
     aliasa.digits = aliasb.digits = nullptr;
-    return (a >> shift); // + BigInt("1") * buffer;
+    return (a >> shift);
 }
 BigInt BigInt::operator%(const BigInt &b) const
 {
@@ -706,7 +706,7 @@ void BigInt::karatsuba(const BigInt &a, const BigInt &b, BigInt &buff) // Should
     Trickster r2(sign, digits + mid, mid);
 
     Trickster buff1(buff.sign, buff.digits, 2 * mid);
-    Trickster buff2(buff.sign, buff.digits + 2 * mid, buff.size - 2 * mid);
+    Trickster buff2(buff.sign, buff.digits + 2 * mid, 2 * mid);
 
     r1.bint = a1.bint;
     r1.bint -= a2.bint;
@@ -830,40 +830,39 @@ void BigInt::computeInverse(const BigInt &c) // Newton-Raphson
     bool basDouble = false;
 
     int i;
-    for(i=0;;++i)
+    for (i = 0;; ++i)
     {
-        std::cout << i << " iteration\r" << std::flush;
         xn2Alias.bint = invAlias.bint;
         buffAlias.bint.clear();
-        buffAlias.bint.karatsuba(invAlias.bint, xn1Alias.bint, kbuff); // optimize to use min alias
+        buffAlias.bint.karatsuba(invAlias.bint, xn1Alias.bint, kbuff);
 
         xn2Alias.bint.digits[xn1Alias.bint.size] = 2;
         xn2Alias.bint -= buffAlias.bint;
         buffAlias.bint = xn2Alias.bint;
         xn2Alias.bint.clear();
-        xn2Alias.bint.karatsuba(buffAlias.bint, xn1Alias.bint, kbuff); // optimize to use min alias
+        xn2Alias.bint.karatsuba(buffAlias.bint, xn1Alias.bint, kbuff);
 
         xn2Alias.bint >>= (xn1Alias.bint.size * 32);
-        if (xn2Alias.bint == xn1Alias.bint)
+        xn1Alias.bint = xn2Alias.bint;
+
+        if (i & 1)
         {
-            invDouble = invAlias.bint.size != c.size;
-            basDouble = xn1Alias.bint.size != size;
+            invDouble = (invAlias.bint.size != c.size);
+            basDouble = (xn1Alias.bint.size != size);
             if (!invDouble && !basDouble)
             {
                 break;
             }
-            xn1Alias.fields.size *= 2;
-            xn2Alias.fields.size *= 2;
-            buffAlias.fields.size *= 2;
-            xn1Alias.bint <<= (xn1Alias.bint.size*16 - invAlias.bint.size*32);
+            i = -1;
+            xn1Alias.fields.size *= (1 + basDouble);
+            xn2Alias.fields.size *= (1 + basDouble);
+            buffAlias.fields.size *= (1 + basDouble);
+            xn1Alias.bint <<= (xn1Alias.bint.size * 16 * basDouble - invAlias.bint.size * 32 * invDouble);
             invAlias.fields.size *= (1 + invDouble);
 
             invAlias.fields.digits = c.digits + c.size - invAlias.fields.size;
-            i= 0;
-            std::cout<<"\n";
             continue;
         }
-        xn1Alias.bint = xn2Alias.bint;
     }
 
     cMask.bint >>= (c.size * 32 - position);

@@ -124,13 +124,14 @@ unsigned int Tester::testMulDiv(unsigned int n, unsigned int size)
         startTimer();
         d = c / b;
         time += stopTimer();
-        //std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
+        std::cout << "a: " << a << " b: " << b << " c: " << c << " d(c/b): " << d << std::endl;
 
         if (d != a)
         {
-            //std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
-            //std::cout << "c: " << c << std::endl;
-            //std::cout << "d: " << d << std::endl;
+            std::cout << "case: " << i << " test failed for a: " << a << "\n and b: " << b << std::endl;
+            std::cout<<"case: "<<i<<std::endl;
+            std::cout << "c: " << c << std::endl;
+            std::cout << "d: " << d << std::endl;
             continue;
         }
         else
